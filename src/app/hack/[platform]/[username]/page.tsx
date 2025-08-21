@@ -19,11 +19,20 @@ type PriceDialogInfo = {
     currentValue: string;
 }
 
+const platforms = [
+  { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png' },
+  { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png' },
+  { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png' },
+  { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png' },
+  { name: 'YouTube', slug: 'youtube', logo: '/youtube.png' },
+  { name: 'X', slug: 'x', logo: '/x.png' },
+];
+
 export default function ProfilePage() {
   const router = useRouter();
-  const params = useParams<{ username: string }>();
+  const params = useParams<{ username: string, platform: string }>();
   const searchParams = useSearchParams();
-  const { username } = params;
+  const { username, platform } = params;
   
   const [followers, setFollowers] = useState<string | null>(null);
   const [following, setFollowing] = useState<string | null>(null);
@@ -37,6 +46,10 @@ export default function ProfilePage() {
   const [newPrice, setNewPrice] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const currentPlatform = platforms.find(p => p.slug === platform) || { name: 'Social Media', logo: 'https://placehold.co/40x40.png' };
+  const platformName = currentPlatform.name;
+
 
   useEffect(() => {
     const formatNumber = (numStr: string | null) => {
@@ -114,6 +127,12 @@ export default function ProfilePage() {
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
       <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
+            <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="relative h-12 w-12">
+                    <Image src={currentPlatform.logo} alt={`${platformName} logo`} layout="fill" objectFit="contain" />
+                </div>
+                <CardTitle className="font-headline text-3xl text-primary">Hacking {platformName}</CardTitle>
+            </div>
           {avatarUrl && (
             <div className="mx-auto mb-4 relative group w-32 h-32">
                 <input 
@@ -284,3 +303,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

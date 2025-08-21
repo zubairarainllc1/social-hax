@@ -11,6 +11,15 @@ import Image from 'next/image';
 
 const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
 
+const platforms = [
+  { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png' },
+  { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png' },
+  { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png' },
+  { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png' },
+  { name: 'YouTube', slug: 'youtube', logo: '/youtube.png' },
+  { name: 'X', slug: 'x', logo: '/x.png' },
+];
+
 export default function HackPage() {
   const router = useRouter();
   const params = useParams();
@@ -22,7 +31,8 @@ export default function HackPage() {
   const [following, setFollowing] = useState('');
   const [posts, setPosts] = useState('');
 
-  const platformName = typeof platform === 'string' ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'Social Media';
+  const currentPlatform = platforms.find(p => p.slug === platform) || { name: 'Social Media', logo: 'https://placehold.co/40x40.png' };
+  const platformName = currentPlatform.name;
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -62,8 +72,13 @@ export default function HackPage() {
     <div className="flex justify-center items-start pt-10">
       <Card className="w-full max-w-lg bg-card/70 border-border shadow-lg shadow-primary/10">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="font-headline text-3xl text-primary">Hack {platformName} Account</CardTitle>
+          <CardHeader className="items-center text-center">
+            <div className="flex items-center gap-4">
+                <div className="relative h-12 w-12">
+                    <Image src={currentPlatform.logo} alt={`${platformName} logo`} layout="fill" objectFit="contain" />
+                </div>
+                <CardTitle className="font-headline text-3xl text-primary">Hack {platformName} Account</CardTitle>
+            </div>
             <CardDescription>Enter the target's details to proceed. Fields are optional.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

@@ -188,7 +188,7 @@ export default function ProfilePage() {
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
-              <CardDescription>Pay for partial data.</CardDescription>
+              <CardDescription>Pay with Partial</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
                <div className="text-4xl font-bold text-accent">PKR {partialAmount}</div>

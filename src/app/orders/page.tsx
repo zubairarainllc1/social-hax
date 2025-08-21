@@ -143,9 +143,8 @@ export default function OrdersPage() {
                 )}
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
-                <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Settings className="mr-2 h-4 w-4" />Manage</Button>
                 {order.type === 'Partial' && <Button size="sm" variant="destructive" className="w-full sm:w-auto">Pay Remainder</Button>}
-                <Button size="sm" disabled={order.status !== 'Completed'} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
+                <Button size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
             </div>
           </div>
         </CardContent>

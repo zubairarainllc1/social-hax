@@ -214,7 +214,7 @@ export default function ProfilePage() {
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                     <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
                     <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
-                    <Button onClick={() => handlePaymentClick('Card')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Card</Button>
+                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
                 </div>
             </CardFooter>
           </Card>
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                     <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
                     <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
-                    <Button onClick={() => handlePaymentClick('Card')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Card</Button>
+                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
                 </div>
             </CardFooter>
           </Card>

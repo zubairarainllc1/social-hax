@@ -161,7 +161,7 @@ export default function ProfilePage() {
                 </button>
             </div>
           )}
-          <CardTitle className="font-headline text-4xl text-black">@{username}</CardTitle>
+          <CardTitle className="font-headline text-3xl text-black">@{username}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           <div className="flex justify-center gap-8 pt-4 text-foreground">
             {followers && (
@@ -304,5 +304,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

@@ -64,7 +64,7 @@ export default function Header() {
         </div>
         <div className="flex flex-1 justify-end items-center gap-4">
             <div className="text-right font-mono text-sm sm:text-base text-green-500">
-                <span className="hidden sm:inline-block">Funds: </span>${formattedFunds}
+                <span className="hidden sm:inline-block">Funds: </span>PKR. {formattedFunds}
             </div>
 
             {/* Desktop Buttons */}
@@ -81,13 +81,13 @@ export default function Header() {
                         </DialogDescription>
                         </DialogHeader>
                         <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">PKR</span>
                             <Input
                                 type="number"
                                 value={topUpAmount}
                                 onChange={(e) => setTopUpAmount(e.target.value)}
                                 placeholder="Enter amount"
-                                className="pl-8"
+                                className="pl-10"
                             />
                         </div>
                         <DialogFooter>
@@ -123,13 +123,13 @@ export default function Header() {
                                     </DialogDescription>
                                     </DialogHeader>
                                     <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">PKR</span>
                                         <Input
                                             type="number"
                                             value={topUpAmount}
                                             onChange={(e) => setTopUpAmount(e.target.value)}
                                             placeholder="Enter amount"
-                                            className="pl-8"
+                                            className="pl-10"
                                         />
                                     </div>
                                     <DialogFooter>

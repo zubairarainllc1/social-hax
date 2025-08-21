@@ -184,7 +184,7 @@ export default function ProfilePage() {
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
-              <CardDescription>Pay in installments for partial data.</CardDescription>
+              <CardDescription>Pay for partial data.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
                <div className="text-4xl font-bold text-accent">PKR {partialAmount}</div>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                     </DialogContent>
                 </Dialog>
                 <Button onClick={() => openPriceDialog('partial')} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
-                    Pay First Installment
+                    Pay Account Funds
                 </Button>
             </CardFooter>
           </Card>
@@ -234,7 +234,7 @@ export default function ProfilePage() {
                     </DialogContent>
                 </Dialog>
                 <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
-                    Order Full Access
+                    Pay with Card
                 </Button>
             </CardFooter>
           </Card>

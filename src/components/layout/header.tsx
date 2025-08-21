@@ -7,7 +7,8 @@ import TypingEffect from "@/components/typing-effect";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 
 const DEFAULT_FUNDS = 12450.00;
 const FUNDS_STORAGE_KEY = 'socialhax-funds';
@@ -63,37 +64,90 @@ export default function Header() {
         </div>
         <div className="flex flex-1 justify-end items-center gap-4">
             <div className="text-right font-mono text-sm sm:text-base text-green-500">
-                Funds: ${formattedFunds}
+                <span className="hidden sm:inline-block">Funds: </span>${formattedFunds}
             </div>
-             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">Top Up</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                    <DialogTitle>Top Up Funds</DialogTitle>
-                    <DialogDescription>
-                        Enter the amount you want to set your funds to.
-                    </DialogDescription>
-                    </DialogHeader>
-                    <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            type="number"
-                            value={topUpAmount}
-                            onChange={(e) => setTopUpAmount(e.target.value)}
-                            placeholder="Enter amount"
-                            className="pl-8"
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button onClick={handleTopUp}>Update Funds</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-            <Button asChild variant="outline" size="sm">
-                <Link href="/orders">Orders</Link>
-            </Button>
+
+            {/* Desktop Buttons */}
+            <div className="hidden md:flex items-center gap-4">
+                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">Top Up</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                        <DialogTitle>Top Up Funds</DialogTitle>
+                        <DialogDescription>
+                            Enter the amount you want to set your funds to.
+                        </DialogDescription>
+                        </DialogHeader>
+                        <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                type="number"
+                                value={topUpAmount}
+                                onChange={(e) => setTopUpAmount(e.target.value)}
+                                placeholder="Enter amount"
+                                className="pl-8"
+                            />
+                        </div>
+                        <DialogFooter>
+                            <Button onClick={handleTopUp}>Update Funds</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Button asChild variant="outline" size="sm">
+                    <Link href="/orders">Orders</Link>
+                </Button>
+            </div>
+            
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon">
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[240px]">
+                        <div className="flex flex-col gap-4 pt-8">
+                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-start">Top Up</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                    <DialogTitle>Top Up Funds</DialogTitle>
+                                    <DialogDescription>
+                                        Enter the amount you want to set your funds to.
+                                    </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
+                                            type="number"
+                                            value={topUpAmount}
+                                            onChange={(e) => setTopUpAmount(e.target.value)}
+                                            placeholder="Enter amount"
+                                            className="pl-8"
+                                        />
+                                    </div>
+                                    <DialogFooter>
+                                         <SheetClose asChild>
+                                            <Button onClick={handleTopUp}>Update Funds</Button>
+                                        </SheetClose>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                            <SheetClose asChild>
+                                <Button asChild variant="outline" className="w-full justify-start">
+                                    <Link href="/orders">Orders</Link>
+                                </Button>
+                            </SheetClose>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
         </div>
       </div>
     </header>

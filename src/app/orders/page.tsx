@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,8 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -49,12 +47,12 @@ type Order = {
   remaining?: string;
 };
 
-const initialOrders: Order[] = [
-  { id: 'ORD-84B2A1', date: '2023-10-26', status: 'Completed', progress: 100, account: '@john_doe_fb', platform: 'facebook', type: 'Instant', price: '50000.00' },
-  { id: 'ORD-C3D7E5', date: '2023-11-15', status: 'Pending', progress: 45, account: '@jane_doe_ig', platform: 'instagram', type: 'Partial', price: '15000.00', remaining: '8250.00' },
-  { id: 'ORD-F9A8B7', date: '2023-12-01', status: 'Partial', progress: 75, account: '@hacker_x_yt', platform: 'youtube', type: 'Partial', price: '25000.00', remaining: '6250.00' },
-  { id: 'ORD-1E2D3C', date: '2024-01-05', status: 'Frozen', progress: 10, account: '@tiktok_star', platform: 'tiktok', type: 'Instant', price: '65000.00' },
-  { id: 'ORD-G4H5I6', date: '2024-01-10', status: 'Canceled', progress: 0, account: '123-456-7890', platform: 'whatsapp', type: 'Instant', price: '30000.00' },
+const initialOrdersData: Omit<Order, 'date'>[] = [
+    { id: 'ORD-84B2A1', status: 'Completed', progress: 100, account: '@john_doe_fb', platform: 'facebook', type: 'Instant', price: '50000.00' },
+    { id: 'ORD-C3D7E5', status: 'Pending', progress: 45, account: '@jane_doe_ig', platform: 'instagram', type: 'Partial', price: '15000.00', remaining: '8250.00' },
+    { id: 'ORD-F9A8B7', status: 'Partial', progress: 75, account: '@hacker_x_yt', platform: 'youtube', type: 'Partial', price: '25000.00', remaining: '6250.00' },
+    { id: 'ORD-1E2D3C', status: 'Frozen', progress: 10, account: '@tiktok_star', platform: 'tiktok', type: 'Instant', price: '65000.00' },
+    { id: 'ORD-G4H5I6', status: 'Canceled', progress: 0, account: '123-456-7890', platform: 'whatsapp', type: 'Instant', price: '30000.00' },
 ];
 
 const statusStyles: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', className: string, icon: React.ReactNode } } = {
@@ -133,7 +131,9 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
     return (
       <div ref={preview} style={{ opacity }}>
         <Card ref={ref} data-handler-id={handlerId} className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm relative">
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none w-8 h-full" ref={drag} />
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none w-8 h-full" ref={drag}>
+             <GripVertical className="h-6 w-6 text-muted-foreground/50 absolute top-1/2 -translate-y-1/2 left-1 hidden group-hover:block" />
+          </div>
           <CardHeader className="pl-12">
             <div className="flex justify-between items-start gap-4">
               <div className="flex items-center gap-4">
@@ -178,11 +178,20 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
   };
   
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [isCreateDialogOpen, setCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const updatedInitialOrders = initialOrdersData.map(order => ({
+        ...order,
+        date: today
+    }));
+    setOrders(updatedInitialOrders);
+  }, []);
 
   const [newOrder, setNewOrder] = useState({
     platform: 'instagram',
@@ -321,31 +330,6 @@ export default function OrdersPage() {
           </DialogHeader>
           {editingOrder && (
             <div className="grid gap-6 pt-4">
-               <div>
-                  <Label>Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !editingOrder.date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {editingOrder.date ? format(new Date(editingOrder.date), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={new Date(editingOrder.date)}
-                        onSelect={(date) => setEditingOrder(o => o ? {...o, date: date ? date.toISOString().split('T')[0] : ''} : null)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-               </div>
               <div>
                 <Label htmlFor="progress">Progress: {editingOrder.progress}%</Label>
                 <Slider id="progress" value={[editingOrder.progress]} onValueChange={([val]) => setEditingOrder(o => o ? {...o, progress: val} : null)} max={100} step={1} />

@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 
@@ -34,6 +34,8 @@ export default function ProfilePage() {
   
   const [priceDialogInfo, setPriceDialogInfo] = useState<PriceDialogInfo | null>(null);
   const [newPrice, setNewPrice] = useState("");
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const formatNumber = (numStr: string | null) => {
@@ -88,21 +90,46 @@ export default function ProfilePage() {
     setPriceDialogInfo(null);
   }
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="flex justify-center items-start pt-10">
       <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
           {avatarUrl && (
-            <div className="mx-auto mb-4">
-                <Image
-                src={avatarUrl}
-                alt="Profile Picture"
-                width={128}
-                height={128}
-                className="rounded-full border-4 border-primary shadow-lg shadow-primary/30"
-                data-ai-hint="profile avatar"
-                onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
+            <div className="mx-auto mb-4 relative group">
+                <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleAvatarChange} 
+                    className="hidden" 
+                    accept="image/*"
                 />
+                <Image
+                    src={avatarUrl}
+                    alt="Profile Picture"
+                    width={128}
+                    height={128}
+                    className="rounded-full border-4 border-primary shadow-lg shadow-primary/30"
+                    data-ai-hint="profile avatar"
+                    onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
+                />
+                 <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    aria-label="Change profile picture"
+                >
+                    <Edit className="h-8 w-8" />
+                </button>
             </div>
           )}
           <CardTitle className="font-headline text-4xl text-primary">@{username}</CardTitle>

@@ -1,79 +1,128 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, CreditCard, Info, AlertTriangle } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from '@/components/ui/label';
+
+type PriceDialogInfo = {
+    type: 'instant' | 'partial';
+    currentValue: string;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { username } = params;
   
   const [followers, setFollowers] = useState<string | null>(null);
-  const [friends, setFriends] = useState<string | null>(null);
+  const [following, setFollowing] = useState<string | null>(null);
+  const [posts, setPosts] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('https://placehold.co/128x128.png');
 
   const [instantAmount, setInstantAmount] = useState('200.00');
   const [partialAmount, setPartialAmount] = useState('50.00');
+  
+  const [priceDialogInfo, setPriceDialogInfo] = useState<PriceDialogInfo | null>(null);
+  const [newPrice, setNewPrice] = useState("");
 
   useEffect(() => {
-    // Generate random numbers on client to avoid hydration mismatch
-    const randomFollowers = (Math.random() * 50000 + 1000).toFixed(0);
-    const randomFriends = (Math.random() * 500 + 50).toFixed(0);
-    setFollowers(Number(randomFollowers).toLocaleString());
-    setFriends(Number(randomFriends).toLocaleString());
-    setAvatarUrl(`https://i.pravatar.cc/128?u=${username}`);
-  }, [username]);
+    const formatNumber = (numStr: string | null) => {
+        if (!numStr) return null;
+        const num = parseInt(numStr, 10);
+        return isNaN(num) ? null : num.toLocaleString();
+    };
+
+    const followersParam = searchParams.get('followers');
+    const followingParam = searchParams.get('following');
+    const postsParam = searchParams.get('posts');
+    const profileUrlParam = searchParams.get('profileUrl');
+
+    setFollowers(followersParam ? formatNumber(followersParam) : (Math.random() * 50000 + 1000).toFixed(0));
+    setFollowing(followingParam ? formatNumber(followingParam) : (Math.random() * 500 + 50).toFixed(0));
+    setPosts(postsParam ? formatNumber(postsParam) : null);
+    setAvatarUrl(profileUrlParam || `https://i.pravatar.cc/128?u=${username}`);
+  }, [username, searchParams]);
 
   const handleOrder = () => {
     router.push('/orders');
   };
 
+  const openPriceDialog = (type: 'instant' | 'partial') => {
+    setPriceDialogInfo({ type, currentValue: type === 'instant' ? instantAmount : partialAmount });
+    setNewPrice("");
+  };
+
+  const handlePriceUpdate = () => {
+    if (priceDialogInfo) {
+        const amount = parseFloat(newPrice);
+        if (!isNaN(amount)) {
+            const formattedPrice = amount.toFixed(2);
+            if (priceDialogInfo.type === 'instant') {
+                setInstantAmount(formattedPrice);
+            } else {
+                setPartialAmount(formattedPrice);
+            }
+        }
+    }
+    setPriceDialogInfo(null);
+  }
+
   return (
     <div className="flex justify-center items-start pt-10">
-      <Card className="w-full max-w-2xl bg-card/70 border-border shadow-lg shadow-primary/10">
+      <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            <Image
-              src={avatarUrl}
-              alt="Profile Picture"
-              width={128}
-              height={128}
-              className="rounded-full border-4 border-primary shadow-lg shadow-primary/30"
-              data-ai-hint="profile avatar"
-            />
-          </div>
+          {avatarUrl && (
+            <div className="mx-auto mb-4">
+                <Image
+                src={avatarUrl}
+                alt="Profile Picture"
+                width={128}
+                height={128}
+                className="rounded-full border-4 border-primary shadow-lg shadow-primary/30"
+                data-ai-hint="profile avatar"
+                onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
+                />
+            </div>
+          )}
           <CardTitle className="font-headline text-4xl text-primary">@{username}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           <div className="flex justify-center gap-8 pt-4 text-foreground">
-            <div className="text-center">
-              <p className="text-2xl font-bold">{followers || '...'}</p>
-              <p className="text-sm text-muted-foreground">Followers</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">{friends || '...'}</p>
-              <p className="text-sm text-muted-foreground">Friends</p>
-            </div>
+            {followers && (
+                <div className="text-center">
+                    <p className="text-2xl font-bold">{followers}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3"/> Followers</p>
+                </div>
+            )}
+            {following && (
+                <div className="text-center">
+                    <p className="text-2xl font-bold">{following}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><UserPlus className="h-3 w-3"/> Following</p>
+                </div>
+            )}
+            {posts && (
+                <div className="text-center">
+                    <p className="text-2xl font-bold">{posts}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3"/> Posts</p>
+                </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-6">
           
-          {/* Instant Order Card */}
-          <Card className="bg-background/50">
+          <Card className="bg-background/50 flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><CreditCard className="text-primary"/> Instant Order</CardTitle>
               <CardDescription>Full access, instant delivery.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <Input value={instantAmount} onChange={e => setInstantAmount(e.target.value)} className="pl-7 font-bold text-lg text-primary bg-input" />
-              </div>
+            <CardContent className="flex-grow">
+              <div className="text-4xl font-bold text-primary">${instantAmount}</div>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>
@@ -89,23 +138,19 @@ export default function ProfilePage() {
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
-                <Button onClick={handleOrder} className="w-full text-lg py-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button onClick={() => openPriceDialog('instant')} className="w-full text-lg py-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90">
                     Order Full Access
                 </Button>
             </CardFooter>
           </Card>
 
-          {/* Partial Order Card */}
-          <Card className="bg-background/50">
+          <Card className="bg-background/50 flex flex-col">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
               <CardDescription>Pay in installments for partial data.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <Input value={partialAmount} onChange={e => setPartialAmount(e.target.value)} className="pl-7 font-bold text-lg text-accent bg-input" />
-              </div>
+            <CardContent className="flex-grow">
+               <div className="text-4xl font-bold text-accent">${partialAmount}</div>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>
@@ -121,13 +166,43 @@ export default function ProfilePage() {
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
-                <Button onClick={handleOrder} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button onClick={() => openPriceDialog('partial')} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
                     Pay First Installment
                 </Button>
             </CardFooter>
           </Card>
         </CardContent>
       </Card>
+      
+      {/* Price editing dialog */}
+      <Dialog open={!!priceDialogInfo} onOpenChange={(isOpen) => !isOpen && setPriceDialogInfo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Price</DialogTitle>
+            <DialogDescription>
+              Enter the new price for the {priceDialogInfo?.type} order.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="new-price" className="sr-only">New Price</Label>
+            <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    id="new-price"
+                    type="number"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    placeholder={priceDialogInfo?.currentValue}
+                    className="pl-8"
+                />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPriceDialogInfo(null)}>Cancel</Button>
+            <Button onClick={handlePriceUpdate}>Update Price</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

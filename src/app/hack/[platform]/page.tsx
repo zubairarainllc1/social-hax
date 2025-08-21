@@ -5,20 +5,33 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText } from "lucide-react";
 
 export default function HackPage() {
   const router = useRouter();
   const params = useParams();
   const { platform } = params;
+
   const [username, setUsername] = useState('');
+  const [profileUrl, setProfileUrl] = useState('');
+  const [followers, setFollowers] = useState('');
+  const [following, setFollowing] = useState('');
+  const [posts, setPosts] = useState('');
 
   const platformName = typeof platform === 'string' ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'Social Media';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
-      router.push(`/hack/${platform}/${username.trim()}`);
+      const query = new URLSearchParams({
+        ...(profileUrl.trim() && { profileUrl: profileUrl.trim() }),
+        ...(followers.trim() && { followers: followers.trim() }),
+        ...(following.trim() && { following: following.trim() }),
+        ...(posts.trim() && { posts: posts.trim() }),
+      }).toString();
+      
+      router.push(`/hack/${platform}/${username.trim()}?${query}`);
     }
   };
 
@@ -28,16 +41,40 @@ export default function HackPage() {
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="font-headline text-3xl text-primary">Hack {platformName} Account</CardTitle>
-            <CardDescription>Enter the target's username or account link to proceed.</CardDescription>
+            <CardDescription>Enter the target's details to proceed. Fields are optional.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Input
-              placeholder="@username or account link"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="text-lg py-6 bg-background/50 border-2 border-border focus:border-primary focus:ring-primary"
-              required
-            />
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username (Required)</Label>
+               <Input
+                id="username"
+                placeholder="@username or account link"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="text-lg py-6 bg-background/50 border-2 border-border focus:border-primary focus:ring-primary"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="profileUrl" className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Profile Picture URL</Label>
+                    <Input id="profileUrl" placeholder="https://..." value={profileUrl} onChange={e => setProfileUrl(e.target.value)} className="bg-input"/>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="posts" className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground"/> Posts</Label>
+                    <Input id="posts" type="number" placeholder="e.g., 182" value={posts} onChange={e => setPosts(e.target.value)} className="bg-input"/>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="followers" className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/> Followers</Label>
+                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.target.value)} className="bg-input"/>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="following" className="flex items-center gap-2"><UserPlus className="h-4 w-4 text-muted-foreground"/> Following</Label>
+                    <Input id="following" type="number" placeholder="e.g., 500" value={following} onChange={e => setFollowing(e.target.value)} className="bg-input"/>
+                </div>
+            </div>
+
           </CardContent>
           <CardFooter>
             <Button

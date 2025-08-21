@@ -84,7 +84,7 @@ export default function HackPage() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="followers" className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/> Followers</Label>
-                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.g.target.value)} className="bg-input"/>
+                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.target.value)} className="bg-input"/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="following" className="flex items-center gap-2"><UserPlus className="h-4 w-4 text-muted-foreground"/> Following</Label>

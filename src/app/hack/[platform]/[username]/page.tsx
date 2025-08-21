@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
+
+const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
 
 type PriceDialogInfo = {
     type: 'instant' | 'partial';
@@ -42,12 +44,27 @@ export default function ProfilePage() {
     const followersParam = searchParams.get('followers');
     const followingParam = searchParams.get('following');
     const postsParam = searchParams.get('posts');
-    const profileUrlParam = searchParams.get('profileUrl');
+    
+    let profileUrlFromStorage: string | null = null;
+    try {
+        profileUrlFromStorage = sessionStorage.getItem(PROFILE_PIC_STORAGE_KEY);
+    } catch (error) {
+        console.error("Could not read from session storage", error);
+    }
 
-    setFollowers(followersParam ? formatNumber(followersParam) : (Math.random() * 50000 + 1000).toFixed(0));
-    setFollowing(followingParam ? formatNumber(followingParam) : (Math.random() * 500 + 50).toFixed(0));
+    setFollowers(followersParam ? formatNumber(followersParam) : (Math.floor(Math.random() * 50000) + 1000).toLocaleString());
+    setFollowing(followingParam ? formatNumber(followingParam) : (Math.floor(Math.random() * 500) + 50).toLocaleString());
     setPosts(postsParam ? formatNumber(postsParam) : null);
-    setAvatarUrl(profileUrlParam || `https://i.pravatar.cc/128?u=${username}`);
+    setAvatarUrl(profileUrlFromStorage || `https://i.pravatar.cc/128?u=${username}`);
+    
+    // Clean up storage
+    if (profileUrlFromStorage) {
+        try {
+            sessionStorage.removeItem(PROFILE_PIC_STORAGE_KEY);
+        } catch (error) {
+            console.error("Could not remove from session storage", error);
+        }
+    }
   }, [username, searchParams]);
 
   const handleOrder = () => {

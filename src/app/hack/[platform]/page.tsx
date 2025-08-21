@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText } from "lucide-react";
 import Image from 'next/image';
 
+const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
+
 export default function HackPage() {
   const router = useRouter();
   const params = useParams();
@@ -36,8 +38,17 @@ export default function HackPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
+      try {
+        if (profileUrl) {
+            sessionStorage.setItem(PROFILE_PIC_STORAGE_KEY, profileUrl);
+        } else {
+            sessionStorage.removeItem(PROFILE_PIC_STORAGE_KEY);
+        }
+      } catch (error) {
+        console.error("Could not save profile picture to session storage", error);
+      }
+
       const query = new URLSearchParams({
-        ...(profileUrl.trim() && { profileUrl: profileUrl.trim() }),
         ...(followers.trim() && { followers: followers.trim() }),
         ...(following.trim() && { following: following.trim() }),
         ...(posts.trim() && { posts: posts.trim() }),

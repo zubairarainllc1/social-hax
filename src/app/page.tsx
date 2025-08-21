@@ -7,7 +7,7 @@ export default function Home() {
         SocialHax
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        Select a social media platform to begin the "hacking" process. This is a prank website for entertainment purposes only. No actual hacking occurs.
+        Our advanced platform provides seamless access to a variety of social networks. Select a target platform to initiate your operation. Anonymity is guaranteed.
       </p>
       <PlatformSelection />
     </div>

@@ -9,7 +9,7 @@ const platforms = [
   { name: 'WhatsApp', slug: 'whatsapp', logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png', description: "Initiate WhatsApp monitoring." },
   { name: 'TikTok', slug: 'tiktok', logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png', description: "Explore TikTok account access tools." },
   { name: 'YouTube', slug: 'youtube', logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png', description: "Unlock YouTube channel control." },
-  { name: 'Twitter', slug: 'twitter', logo: 'https://static.vecteezy.com/system/resources/previews/018/930/587/non_2x/twitter-logo-twitter-icon-transparent-free-free-png.png', description: "Access Twitter compromise services." },
+  { name: 'X', slug: 'x', logo: 'https://static.vecteezy.com/system/resources/previews/018/930/587/non_2x/twitter-logo-twitter-icon-transparent-free-free-png.png', description: "Access X compromise services." },
 ];
 
 export default function PlatformSelection() {

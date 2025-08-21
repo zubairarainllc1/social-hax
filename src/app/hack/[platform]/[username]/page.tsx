@@ -276,7 +276,7 @@ export default function ProfilePage() {
         </CardHeader>
       </Card>
 
-      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>
@@ -380,3 +380,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

@@ -52,8 +52,8 @@ export default function ProfilePage() {
         console.error("Could not read from session storage", error);
     }
 
-    setFollowers(followersParam ? formatNumber(followersParam) : (Math.floor(Math.random() * 50000) + 1000).toLocaleString());
-    setFollowing(followingParam ? formatNumber(followingParam) : (Math.floor(Math.random() * 500) + 50).toLocaleString());
+    setFollowers(followersParam ? formatNumber(followersParam) : null);
+    setFollowing(followingParam ? formatNumber(followingParam) : null);
     setPosts(postsParam ? formatNumber(postsParam) : null);
     setAvatarUrl(profileUrlFromStorage || `https://i.pravatar.cc/128?u=${username}`);
     
@@ -67,9 +67,6 @@ export default function ProfilePage() {
     }
   }, [username, searchParams]);
 
-  const handleOrder = () => {
-    router.push('/orders');
-  };
 
   const openPriceDialog = (type: 'instant' | 'partial') => {
     setPriceDialogInfo({ type, currentValue: type === 'instant' ? instantAmount : partialAmount });

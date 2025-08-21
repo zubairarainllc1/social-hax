@@ -54,7 +54,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'WhatsApp', 
         slug: 'whatsapp', 
-        logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
+        logo: '/whatsapp.png',
         stats: {
             followers: { label: 'Contacts', icon: Users },
             following: { label: 'Groups', icon: UserPlus },
@@ -64,7 +64,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'TikTok', 
         slug: 'tiktok', 
-        logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
+        logo: '/tiktok.png',
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
@@ -74,7 +74,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'YouTube', 
         slug: 'youtube', 
-        logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
+        logo: '/youtube.png',
         stats: {
             followers: { label: 'Subscribers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
@@ -276,7 +276,7 @@ export default function ProfilePage() {
         </CardHeader>
       </Card>
 
-      <div className="w-full max-w-3xl grid grid-cols-1 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>
@@ -380,5 +380,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

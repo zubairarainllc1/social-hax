@@ -54,7 +54,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'WhatsApp', 
         slug: 'whatsapp', 
-        logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
+        logo: '/whatsapp.png',
         mainInput: { label: 'Phone Number (Required)', placeholder: '+1 123 456 7890', type: 'tel' },
         stats: {
             followers: { label: 'Contacts', icon: Users, placeholder: 'e.g., 256' },
@@ -65,7 +65,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'TikTok', 
         slug: 'tiktok', 
-        logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
+        logo: '/tiktok.png',
         mainInput: { label: 'Username (Required)', placeholder: '@tiktok_star', type: 'text' },
         stats: {
             followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 1.2M' },
@@ -76,7 +76,7 @@ const platforms: PlatformConfig[] = [
     { 
         name: 'YouTube', 
         slug: 'youtube', 
-        logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
+        logo: '/youtube.png',
         mainInput: { label: 'Channel Name or URL (Required)', placeholder: 'e.g., @channel or channel link', type: 'text' },
         stats: {
             followers: { label: 'Subscribers', icon: Users, placeholder: 'e.g., 10M' },
@@ -231,5 +231,3 @@ export default function HackPage() {
     </div>
   );
 }
-
-    

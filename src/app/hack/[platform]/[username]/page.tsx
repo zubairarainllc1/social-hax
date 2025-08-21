@@ -106,7 +106,7 @@ export default function ProfilePage() {
       <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
           {avatarUrl && (
-            <div className="mx-auto mb-4 relative group">
+            <div className="mx-auto mb-4 relative group w-32 h-32">
                 <input 
                     type="file" 
                     ref={fileInputRef} 
@@ -119,7 +119,7 @@ export default function ProfilePage() {
                     alt="Profile Picture"
                     width={128}
                     height={128}
-                    className="rounded-full border-4 border-primary shadow-lg shadow-primary/30"
+                    className="rounded-full border-4 border-primary shadow-lg shadow-primary/30 w-full h-full object-cover"
                     data-ai-hint="profile avatar"
                     onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
                 />

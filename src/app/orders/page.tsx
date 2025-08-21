@@ -76,7 +76,7 @@ interface DragItem {
   type: string
 }
 
-const OrderCard = ({ order, index, moveCard }: { order: Order; index: number; moveCard: (dragIndex: number, hoverIndex: number) => void; }) => {
+const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: number; moveCard: (dragIndex: number, hoverIndex: number) => void; onEdit: (order: Order) => void; }) => {
     const style = statusStyles[order.status];
     const logo = platformLogos[order.platform];
     const ref = useRef<HTMLDivElement>(null)
@@ -130,29 +130,10 @@ const OrderCard = ({ order, index, moveCard }: { order: Order; index: number; mo
     const opacity = isDragging ? 0 : 1
     drag(drop(ref))
 
-    const [orders, setOrders] = useState<Order[]>(initialOrders);
-    const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-    const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-
-    const handleOpenEditDialog = (order: Order) => {
-        setEditingOrder({ ...order });
-        setEditDialogOpen(true);
-    };
-
-    const handleUpdateOrder = () => {
-        if (!editingOrder) return;
-        setOrders(prev => prev.map(o => o.id === editingOrder.id ? editingOrder : o));
-        setEditDialogOpen(false);
-        setEditingOrder(null);
-    }
-    
     return (
-    <>
       <div ref={preview} style={{ opacity }}>
         <Card ref={ref} data-handler-id={handlerId} className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm relative">
-          <div ref={drag} className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none text-muted-foreground hover:text-foreground">
-             <GripVertical className="h-6 w-6" />
-          </div>
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none w-8 h-full" ref={drag} />
           <CardHeader className="pl-12">
             <div className="flex justify-between items-start gap-4">
               <div className="flex items-center gap-4">
@@ -187,15 +168,12 @@ const OrderCard = ({ order, index, moveCard }: { order: Order; index: number; mo
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                   {order.type === 'Partial' && <Button size="sm" variant="destructive" className="w-full sm:w-auto">Pay Remainder</Button>}
-                  <Button size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
+                  <Button size="sm" onClick={() => onEdit(order)} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-       {/* Edit Dialog - Kept a single dialog instance in the parent component to avoid issues */}
-    </>
     );
   };
   
@@ -326,7 +304,7 @@ export default function OrdersPage() {
           <TabsContent value={activeTab}>
              <div className="space-y-6">
                 {filteredOrders.length > 0 ? (
-                    filteredOrders.map((order, i) => <OrderCard key={order.id} index={i} order={order} moveCard={moveCard} />)
+                    filteredOrders.map((order, i) => <OrderCard key={order.id} index={i} order={order} moveCard={moveCard} onEdit={handleOpenEditDialog} />)
                 ) : (
                     <p className="text-center text-muted-foreground py-10">No orders found for this status.</p>
                 )}
@@ -411,4 +389,6 @@ export default function OrdersPage() {
     </DndProvider>
   )
 }
+    
+
     

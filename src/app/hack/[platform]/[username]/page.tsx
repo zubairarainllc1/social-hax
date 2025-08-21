@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -47,6 +48,7 @@ export default function ProfilePage() {
     
     let profileUrlFromStorage: string | null = null;
     try {
+        // This code runs only on the client, so sessionStorage is available.
         profileUrlFromStorage = sessionStorage.getItem(PROFILE_PIC_STORAGE_KEY);
     } catch (error) {
         console.error("Could not read from session storage", error);

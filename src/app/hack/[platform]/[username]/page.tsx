@@ -211,10 +211,12 @@ export default function ProfilePage() {
                     </Dialog>
                     <Button onClick={() => openPriceDialog('partial')} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-accent"><Edit className="h-3 w-3 mr-1"/>Edit Amount</Button>
                 </div>
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                    <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
-                    <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
-                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                <div className="flex flex-col gap-2 pt-2">
+                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
+                        <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
+                    </div>
                 </div>
             </CardFooter>
           </Card>
@@ -245,10 +247,12 @@ export default function ProfilePage() {
                     </Dialog>
                     <Button onClick={() => openPriceDialog('instant')} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-accent"><Edit className="h-3 w-3 mr-1"/>Edit Amount</Button>
                 </div>
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                    <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
-                    <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
-                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                <div className="flex flex-col gap-2 pt-2">
+                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
+                        <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
+                    </div>
                 </div>
             </CardFooter>
           </Card>
@@ -286,3 +290,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

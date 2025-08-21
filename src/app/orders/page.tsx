@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Settings, Plus, DollarSign, Shield } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Settings, Plus, DollarSign, Shield, Calendar as CalendarIcon, GripVertical } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,15 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import type { Identifier, XYCoord } from 'dnd-core';
+import React, { useRef } from 'react';
+
 
 const platformLogos: { [key: string]: string } = {
   instagram: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png',
@@ -56,6 +65,140 @@ const statusStyles: { [key in OrderStatus]: { variant: 'default' | 'secondary' |
   Canceled: { variant: 'destructive', className: 'bg-red-500/20 text-red-500 border-red-500/30', icon: <XCircle className="h-4 w-4" /> },
 };
 
+
+const ItemTypes = {
+  ORDER: 'order',
+}
+
+interface DragItem {
+  index: number
+  id: string
+  type: string
+}
+
+const OrderCard = ({ order, index, moveCard }: { order: Order; index: number; moveCard: (dragIndex: number, hoverIndex: number) => void; }) => {
+    const style = statusStyles[order.status];
+    const logo = platformLogos[order.platform];
+    const ref = useRef<HTMLDivElement>(null)
+    const [{ handlerId }, drop] = useDrop<
+        DragItem,
+        void,
+        { handlerId: Identifier | null }
+    >({
+        accept: ItemTypes.ORDER,
+        collect(monitor) {
+        return {
+            handlerId: monitor.getHandlerId(),
+        }
+        },
+        hover(item: DragItem, monitor) {
+        if (!ref.current) {
+            return
+        }
+        const dragIndex = item.index
+        const hoverIndex = index
+
+        if (dragIndex === hoverIndex) {
+            return
+        }
+        const hoverBoundingRect = ref.current?.getBoundingClientRect()
+        const hoverMiddleY =
+            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        const clientOffset = monitor.getClientOffset()
+        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+            return
+        }
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+            return
+        }
+        moveCard(dragIndex, hoverIndex)
+        item.index = hoverIndex
+        },
+    })
+
+    const [{ isDragging }, drag, preview] = useDrag({
+        type: ItemTypes.ORDER,
+        item: () => {
+        return { id: order.id, index }
+        },
+        collect: (monitor: any) => ({
+        isDragging: monitor.isDragging(),
+        }),
+    })
+    
+    const opacity = isDragging ? 0 : 1
+    drag(drop(ref))
+
+    const [orders, setOrders] = useState<Order[]>(initialOrders);
+    const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+    const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+
+    const handleOpenEditDialog = (order: Order) => {
+        setEditingOrder({ ...order });
+        setEditDialogOpen(true);
+    };
+
+    const handleUpdateOrder = () => {
+        if (!editingOrder) return;
+        setOrders(prev => prev.map(o => o.id === editingOrder.id ? editingOrder : o));
+        setEditDialogOpen(false);
+        setEditingOrder(null);
+    }
+    
+    return (
+    <>
+      <div ref={preview} style={{ opacity }}>
+        <Card ref={ref} data-handler-id={handlerId} className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm relative">
+          <div ref={drag} className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none text-muted-foreground hover:text-foreground">
+             <GripVertical className="h-6 w-6" />
+          </div>
+          <CardHeader className="pl-12">
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex items-center gap-4">
+                {logo && <Image src={logo} alt={`${order.platform} logo`} width={40} height={40} className="rounded-full" />}
+                <div>
+                  <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
+                  <CardDescription>{order.account} - Order placed on {format(new Date(order.date), "PPP")}</CardDescription>
+                </div>
+              </div>
+              <Badge variant={style.variant} className={`whitespace-nowrap ${style.className}`}>
+                {style.icon}
+                <span className="ml-2">{order.status}</span>
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 pl-12">
+            <div>
+              <div className="flex items-center gap-4 mb-2">
+                <span className="text-sm font-medium w-20">Progress:</span>
+                <Progress value={order.progress} />
+                <span className="text-sm font-medium text-primary">{order.progress}%</span>
+              </div>
+            </div>
+            <Separator />
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 text-sm">
+              <div className="flex flex-col gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>
+                  <div className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> Price: <span className="font-medium text-foreground">PKR {order.price}</span></div>
+                  {order.type === 'Partial' && order.remaining && (
+                      <div className="flex items-center gap-1"><DollarSign className="h-4 w-4 text-red-500" /> Remaining: <span className="font-medium text-red-500">PKR {order.remaining}</span></div>
+                  )}
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                  {order.type === 'Partial' && <Button size="sm" variant="destructive" className="w-full sm:w-auto">Pay Remainder</Button>}
+                  <Button size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+       {/* Edit Dialog - Kept a single dialog instance in the parent component to avoid issues */}
+    </>
+    );
+  };
+  
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -104,55 +247,17 @@ export default function OrdersPage() {
     if (activeTab === 'all') return orders;
     return orders.filter(o => o.status.toLowerCase() === activeTab.toLowerCase());
   }, [activeTab, orders]);
-
-  const OrderCard = ({ order }: { order: Order }) => {
-    const style = statusStyles[order.status];
-    const logo = platformLogos[order.platform];
-    return (
-      <Card className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm">
-        <CardHeader>
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-center gap-4">
-              {logo && <Image src={logo} alt={`${order.platform} logo`} width={40} height={40} className="rounded-full" />}
-              <div>
-                <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
-                <CardDescription>{order.account} - Order placed on {order.date}</CardDescription>
-              </div>
-            </div>
-            <Badge variant={style.variant} className={`whitespace-nowrap ${style.className}`}>
-              {style.icon}
-              <span className="ml-2">{order.status}</span>
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="flex items-center gap-4 mb-2">
-              <span className="text-sm font-medium w-20">Progress:</span>
-              <Progress value={order.progress} />
-              <span className="text-sm font-medium text-primary">{order.progress}%</span>
-            </div>
-          </div>
-          <Separator />
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 text-sm">
-            <div className="flex flex-col gap-2 text-muted-foreground">
-                <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>
-                <div className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> Price: <span className="font-medium text-foreground">PKR {order.price}</span></div>
-                {order.type === 'Partial' && order.remaining && (
-                    <div className="flex items-center gap-1"><DollarSign className="h-4 w-4 text-red-500" /> Remaining: <span className="font-medium text-red-500">PKR {order.remaining}</span></div>
-                )}
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
-                {order.type === 'Partial' && <Button size="sm" variant="destructive" className="w-full sm:w-auto">Pay Remainder</Button>}
-                <Button size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
   
-  return (
+  const moveCard = (dragIndex: number, hoverIndex: number) => {
+    setOrders((prevOrders) => {
+       const newOrders = [...prevOrders];
+       const [draggedItem] = newOrders.splice(dragIndex, 1);
+       newOrders.splice(hoverIndex, 0, draggedItem);
+       return newOrders;
+    });
+  };
+
+  const PageContent = () => (
     <div className="w-full">
         <div className="flex justify-between items-center mb-8">
             <Button asChild variant="outline">
@@ -221,7 +326,7 @@ export default function OrdersPage() {
           <TabsContent value={activeTab}>
              <div className="space-y-6">
                 {filteredOrders.length > 0 ? (
-                    filteredOrders.map((order) => <OrderCard key={order.id} order={order} />)
+                    filteredOrders.map((order, i) => <OrderCard key={order.id} index={i} order={order} moveCard={moveCard} />)
                 ) : (
                     <p className="text-center text-muted-foreground py-10">No orders found for this status.</p>
                 )}
@@ -238,6 +343,31 @@ export default function OrdersPage() {
           </DialogHeader>
           {editingOrder && (
             <div className="grid gap-6 pt-4">
+               <div>
+                  <Label>Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !editingOrder.date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editingOrder.date ? format(new Date(editingOrder.date), "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(editingOrder.date)}
+                        onSelect={(date) => setEditingOrder(o => o ? {...o, date: date ? date.toISOString().split('T')[0] : ''} : null)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+               </div>
               <div>
                 <Label htmlFor="progress">Progress: {editingOrder.progress}%</Label>
                 <Slider id="progress" value={[editingOrder.progress]} onValueChange={([val]) => setEditingOrder(o => o ? {...o, progress: val} : null)} max={100} step={1} />
@@ -274,8 +404,11 @@ export default function OrdersPage() {
       </Dialog>
     </div>
   );
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <PageContent />
+    </DndProvider>
+  )
 }
-
-
-
     

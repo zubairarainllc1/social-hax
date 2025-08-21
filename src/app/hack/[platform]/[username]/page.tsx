@@ -234,7 +234,7 @@ export default function ProfilePage() {
                     </DialogContent>
                 </Dialog>
                 <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
-                    Pay with Card
+                    Pay Account Funds
                 </Button>
             </CardFooter>
           </Card>

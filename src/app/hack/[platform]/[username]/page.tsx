@@ -155,7 +155,7 @@ export default function ProfilePage() {
             )}
           </div>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-6">
+        <CardContent className="space-y-6">
           
           <Card className="bg-background/50 flex flex-col">
             <CardHeader>

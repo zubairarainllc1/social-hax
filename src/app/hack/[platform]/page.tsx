@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -22,7 +23,7 @@ const platforms = [
 
 export default function HackPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ platform: string }>();
   const { platform } = params;
 
   const [username, setUsername] = useState('');

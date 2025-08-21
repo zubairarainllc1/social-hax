@@ -21,7 +21,7 @@ type PriceDialogInfo = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ username: string }>();
   const searchParams = useSearchParams();
   const { username } = params;
   

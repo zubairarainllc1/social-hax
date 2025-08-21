@@ -110,10 +110,6 @@ export default function ProfilePage() {
     return (pkrAmount / PKR_TO_USD_RATE).toFixed(2);
   }
 
-  const handlePaymentClick = (method: string) => {
-    alert(`Payment with ${method} is not implemented in this prank.`);
-  }
-
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
       <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
@@ -209,13 +205,12 @@ export default function ProfilePage() {
                             </DialogHeader>
                         </DialogContent>
                     </Dialog>
-                    <Button onClick={() => openPriceDialog('partial')} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-accent"><Edit className="h-3 w-3 mr-1"/>Edit Amount</Button>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">
-                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <Button onClick={() => openPriceDialog('partial')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
                     <div className="grid grid-cols-2 gap-2">
-                        <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
-                        <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
+                        <Button onClick={() => openPriceDialog('partial')} variant="outline">Pay with Bitcoin</Button>
+                        <Button onClick={() => openPriceDialog('partial')} variant="outline">Pay with Ethereum</Button>
                     </div>
                 </div>
             </CardFooter>
@@ -245,13 +240,12 @@ export default function ProfilePage() {
                             </DialogHeader>
                         </DialogContent>
                     </Dialog>
-                    <Button onClick={() => openPriceDialog('instant')} variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-accent"><Edit className="h-3 w-3 mr-1"/>Edit Amount</Button>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">
-                    <Button onClick={() => handlePaymentClick('Account Funds')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
                     <div className="grid grid-cols-2 gap-2">
-                        <Button onClick={() => handlePaymentClick('Bitcoin')} variant="outline">Pay with Bitcoin</Button>
-                        <Button onClick={() => handlePaymentClick('Ethereum')} variant="outline">Pay with Ethereum</Button>
+                        <Button onClick={() => openPriceDialog('instant')} variant="outline">Pay with Bitcoin</Button>
+                        <Button onClick={() => openPriceDialog('instant')} variant="outline">Pay with Ethereum</Button>
                     </div>
                 </div>
             </CardFooter>
@@ -290,5 +284,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

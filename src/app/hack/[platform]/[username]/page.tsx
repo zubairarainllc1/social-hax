@@ -22,17 +22,18 @@ type PriceDialogInfo = {
 const platforms = [
   { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png' },
   { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png' },
-  { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png' },
-  { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png' },
-  { name: 'YouTube', slug: 'youtube', logo: '/youtube.png' },
+  { name: 'WhatsApp', slug: 'whatsapp', logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png' },
+  { name: 'TikTok', slug: 'tiktok', logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png' },
+  { name: 'YouTube', slug: 'youtube', logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png' },
   { name: 'X', slug: 'x', logo: '/x.png' },
 ];
 
 export default function ProfilePage() {
   const router = useRouter();
-  const params = useParams<{ username: string, platform: string }>();
+  const params = useParams();
+  const username = params.username as string;
+  const platform = params.platform as string;
   const searchParams = useSearchParams();
-  const { username, platform } = params;
   
   const [followers, setFollowers] = useState<string | null>(null);
   const [following, setFollowing] = useState<string | null>(null);
@@ -125,7 +126,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
-      <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
+      <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">
         <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-4 mb-4">
                 <div className="relative h-12 w-12">
@@ -147,7 +148,7 @@ export default function ProfilePage() {
                     alt="Profile Picture"
                     width={128}
                     height={128}
-                    className="rounded-full border-4 border-primary shadow-lg shadow-primary/30 w-full h-full object-cover"
+                    className="rounded-full border-4 border-primary shadow-lg w-full h-full object-cover"
                     data-ai-hint="profile avatar"
                     onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
                 />
@@ -184,7 +185,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
                 <div className="text-center">
-                    <p className="text-lg font-bold text-green-400">Online</p>
+                    <p className="text-lg font-bold text-green-500">Online</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
                 </div>
                 <div className="text-center">
@@ -200,20 +201,20 @@ export default function ProfilePage() {
       </Card>
 
       <div className="w-full max-w-lg grid grid-cols-1 gap-6">
-          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
+              <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>
               <CardDescription>Pay with Partial</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-               <div className="text-4xl font-bold text-accent">PKR {partialAmount}</div>
+               <div className="text-4xl font-bold text-red-500">PKR {partialAmount}</div>
                <p className="text-sm text-muted-foreground">Approx. ${convertPkrToUsd(partialAmount)}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <div className="flex items-center justify-between">
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-accent"><Info className="h-3 w-3 mr-1"/>More Details</Button>
+                            <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-red-500"><Info className="h-3 w-3 mr-1"/>More Details</Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
@@ -226,7 +227,7 @@ export default function ProfilePage() {
                     </Dialog>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">
-                    <Button onClick={() => openPriceDialog('partial')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <Button onClick={() => openPriceDialog('partial')} variant="destructive" className="w-full bg-red-500 text-white hover:bg-red-500/90">Pay with Account Funds</Button>
                     <div className="grid grid-cols-2 gap-2">
                         <Button onClick={() => openPriceDialog('partial')} variant="outline">Pay with Bitcoin</Button>
                         <Button onClick={() => openPriceDialog('partial')} variant="outline">Pay with Ethereum</Button>
@@ -235,20 +236,20 @@ export default function ProfilePage() {
             </CardFooter>
           </Card>
 
-          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><CreditCard className="text-accent"/> Instant Order</CardTitle>
+              <CardTitle className="flex items-center gap-2"><CreditCard className="text-red-500"/> Instant Order</CardTitle>
               <CardDescription>Full access, instant delivery.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <div className="text-4xl font-bold text-accent">PKR {instantAmount}</div>
+              <div className="text-4xl font-bold text-red-500">PKR {instantAmount}</div>
               <p className="text-sm text-muted-foreground">Approx. ${convertPkrToUsd(instantAmount)}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                  <div className="flex items-center justify-between">
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-accent"><Info className="h-3 w-3 mr-1"/>More Details</Button>
+                            <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-red-500"><Info className="h-3 w-3 mr-1"/>More Details</Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
@@ -261,7 +262,7 @@ export default function ProfilePage() {
                     </Dialog>
                 </div>
                 <div className="flex flex-col gap-2 pt-2">
-                    <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Pay with Account Funds</Button>
+                    <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full bg-red-500 text-white hover:bg-red-500/90">Pay with Account Funds</Button>
                     <div className="grid grid-cols-2 gap-2">
                         <Button onClick={() => openPriceDialog('instant')} variant="outline">Pay with Bitcoin</Button>
                         <Button onClick={() => openPriceDialog('instant')} variant="outline">Pay with Ethereum</Button>

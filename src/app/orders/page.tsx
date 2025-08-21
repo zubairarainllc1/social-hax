@@ -13,10 +13,10 @@ const fakeOrders = [
 ];
 
 const statusStyles = {
-  Completed: { variant: 'default', className: 'bg-green-500/20 text-green-400 border-green-500/30', icon: <CheckCircle className="h-4 w-4 text-green-400" /> },
-  Pending: { variant: 'secondary', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', icon: <Clock className="h-4 w-4 text-yellow-400" /> },
-  Partial: { variant: 'secondary', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: <Clock className="h-4 w-4 text-blue-400" /> },
-  Frozen: { variant: 'destructive', className: 'bg-red-500/20 text-red-400 border-red-500/30', icon: <XCircle className="h-4 w-4 text-red-400" /> },
+  Completed: { variant: 'default', className: 'bg-green-500/20 text-green-500 border-green-500/30', icon: <CheckCircle className="h-4 w-4 text-green-500" /> },
+  Pending: { variant: 'secondary', className: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30', icon: <Clock className="h-4 w-4 text-yellow-500" /> },
+  Partial: { variant: 'secondary', className: 'bg-blue-500/20 text-blue-500 border-blue-500/30', icon: <Clock className="h-4 w-4 text-blue-500" /> },
+  Frozen: { variant: 'destructive', className: 'bg-red-500/20 text-red-500 border-red-500/30', icon: <XCircle className="h-4 w-4 text-red-500" /> },
 };
 
 export default function OrdersPage() {
@@ -50,7 +50,7 @@ export default function OrdersPage() {
               <CardContent>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium w-20">Progress:</span>
-                  <Progress value={order.progress} className="w-full [&>div]:bg-primary" />
+                  <Progress value={order.progress} className="w-full" />
                   <span className="text-sm font-medium text-primary">{order.progress}%</span>
                 </div>
               </CardContent>

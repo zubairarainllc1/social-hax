@@ -47,7 +47,7 @@ export default function TypingEffect() {
   }, [subIndex, index, isDeleting]);
 
   return (
-    <div className="font-mono text-sm text-primary flex items-center gap-2">
+    <div className="font-mono text-sm text-foreground flex items-center gap-2">
       <Terminal className="h-4 w-4" />
       <span>{currentText}</span>
       <span className="animate-ping">_</span>

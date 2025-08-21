@@ -63,12 +63,12 @@ export default function Header() {
           <TypingEffect />
         </div>
         <div className="flex items-center gap-4">
-            <div className="text-right font-mono text-sm sm:text-base text-green-400">
+            <div className="text-right font-mono text-sm sm:text-base text-green-500">
                 Funds: ${formattedFunds}
             </div>
              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/10 hover:text-primary">Top Up</Button>
+                    <Button variant="outline" size="sm">Top Up</Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>

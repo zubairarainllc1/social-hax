@@ -145,7 +145,7 @@ export default function OrdersPage() {
             <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(order)}><Settings className="mr-2 h-4 w-4" />Manage</Button>
                 {order.type === 'Partial' && <Button size="sm" variant="destructive">Pay Remainder</Button>}
-                <Button size="sm" disabled={order.status !== 'Completed'}><Download className="mr-2 h-4 w-4" />Download Data</Button>
+                <Button size="sm" disabled={order.status !== 'Completed'}><Download className="mr-2 h-4 w-4" />Download Access</Button>
             </div>
           </div>
         </CardContent>

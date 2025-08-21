@@ -148,7 +148,7 @@ export default function ProfilePage() {
                     alt="Profile Picture"
                     width={128}
                     height={128}
-                    className="rounded-full border-4 border-primary shadow-lg w-full h-full object-cover"
+                    className="rounded-full border-2 border-black shadow-lg w-full h-full object-cover"
                     data-ai-hint="profile avatar"
                     onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
                 />
@@ -161,7 +161,7 @@ export default function ProfilePage() {
                 </button>
             </div>
           )}
-          <CardTitle className="font-headline text-4xl text-primary">@{username}</CardTitle>
+          <CardTitle className="font-headline text-4xl text-black">@{username}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           <div className="flex justify-center gap-8 pt-4 text-foreground">
             {followers && (
@@ -304,5 +304,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

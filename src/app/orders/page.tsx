@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Edit, Server, Shield, Plus, DollarSign, Settings } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Settings, Plus, DollarSign, Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -134,18 +134,18 @@ export default function OrdersPage() {
             </div>
           </div>
           <Separator />
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
-              <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>
-              <div className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> Price: <span className="font-medium text-foreground">PKR {order.price}</span></div>
-              {order.type === 'Partial' && order.remaining && (
-                <div className="flex items-center gap-1"><DollarSign className="h-4 w-4 text-red-500" /> Remaining: <span className="font-medium text-red-500">PKR {order.remaining}</span></div>
-              )}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 text-sm">
+            <div className="flex flex-col gap-2 text-muted-foreground">
+                <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>
+                <div className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> Price: <span className="font-medium text-foreground">PKR {order.price}</span></div>
+                {order.type === 'Partial' && order.remaining && (
+                    <div className="flex items-center gap-1"><DollarSign className="h-4 w-4 text-red-500" /> Remaining: <span className="font-medium text-red-500">PKR {order.remaining}</span></div>
+                )}
             </div>
-            <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(order)}><Settings className="mr-2 h-4 w-4" />Manage</Button>
-                {order.type === 'Partial' && <Button size="sm" variant="destructive">Pay Remainder</Button>}
-                <Button size="sm" disabled={order.status !== 'Completed'}><Download className="mr-2 h-4 w-4" />Download Access</Button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(order)} className="w-full sm:w-auto"><Settings className="mr-2 h-4 w-4" />Manage</Button>
+                {order.type === 'Partial' && <Button size="sm" variant="destructive" className="w-full sm:w-auto">Pay Remainder</Button>}
+                <Button size="sm" disabled={order.status !== 'Completed'} className="w-full sm:w-auto"><Download className="mr-2 h-4 w-4" />Download Access</Button>
             </div>
           </div>
         </CardContent>
@@ -211,7 +211,7 @@ export default function OrdersPage() {
       <p className="text-muted-foreground text-center mb-10">Track and manage the status of your hacking orders.</p>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-6">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="completed">Completed</TabsTrigger>
               <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -277,3 +277,6 @@ export default function OrdersPage() {
   );
 }
 
+
+
+    

@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 
@@ -163,11 +163,25 @@ export default function ProfilePage() {
                 </div>
             )}
           </div>
+          <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
+                <div className="text-center">
+                    <p className="text-lg font-bold text-green-400">Online</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+                </div>
+                <div className="text-center">
+                    <p className="text-lg font-bold">Active</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+                </div>
+                <div className="text-center">
+                    <p className="text-lg font-bold">Granted</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
+                </div>
+          </div>
         </CardHeader>
       </Card>
 
       <div className="w-full max-w-lg grid grid-cols-1 gap-6">
-        <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
               <CardDescription>Pay in installments for partial data.</CardDescription>

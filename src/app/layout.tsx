@@ -5,7 +5,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
-  title: "PrankMaster",
+  title: "SocialHAx",
   description: "The ultimate prank hacking tool. Just for fun!",
 };
 

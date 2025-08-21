@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="border-t border-border/40 py-8 bg-background">
       <div className="container max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-muted-foreground">
         <div>
-          <h3 className="font-headline text-lg font-bold text-primary mb-2">PrankMaster</h3>
+          <h3 className="font-headline text-lg font-bold text-primary mb-2">SocialHAx</h3>
           <p>The leading provider of social reconnaissance solutions. Anonymity and discretion are our top priorities.</p>
         </div>
         <div>
@@ -27,7 +27,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="container max-w-5xl mt-8 pt-8 border-t border-border/40 text-center text-xs text-muted-foreground">
-        <p>© 2024 PrankMaster. All operations are conducted in accordance with international digital access treaties.</p>
+        <p>© 2024 SocialHAx. All operations are conducted in accordance with international digital access treaties.</p>
         <p className="mt-1">For authorized use only. Unauthorized access is strictly monitored and prosecuted.</p>
       </div>
     </footer>

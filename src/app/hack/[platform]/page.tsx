@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText } from "lucide-react";
+import Image from 'next/image';
 
 export default function HackPage() {
   const router = useRouter();
@@ -21,6 +22,17 @@ export default function HackPage() {
 
   const platformName = typeof platform === 'string' ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'Social Media';
 
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
@@ -58,8 +70,13 @@ export default function HackPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="profileUrl" className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Profile Picture URL</Label>
-                    <Input id="profileUrl" placeholder="https://..." value={profileUrl} onChange={e => setProfileUrl(e.target.value)} className="bg-input"/>
+                    <Label htmlFor="profileUrl" className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Profile Picture</Label>
+                    <Input id="profileUrl" type="file" accept="image/*" onChange={handleProfilePictureChange} className="bg-input"/>
+                    {profileUrl && (
+                        <div className="mt-2 flex justify-center">
+                            <Image src={profileUrl} alt="Profile preview" width={80} height={80} className="rounded-full" data-ai-hint="profile avatar" />
+                        </div>
+                    )}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="posts" className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground"/> Posts</Label>
@@ -67,7 +84,7 @@ export default function HackPage() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="followers" className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/> Followers</Label>
-                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.target.value)} className="bg-input"/>
+                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.g.target.value)} className="bg-input"/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="following" className="flex items-center gap-2"><UserPlus className="h-4 w-4 text-muted-foreground"/> Following</Label>

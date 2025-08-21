@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -90,6 +91,9 @@ export default function Header() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <Button asChild variant="outline" size="sm">
+                <Link href="/orders">Orders</Link>
+            </Button>
         </div>
       </div>
     </header>

@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound, Video, Heart } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 
@@ -19,20 +19,79 @@ type PriceDialogInfo = {
     currentValue: string;
 }
 
-const platforms = [
-  { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png' },
-  { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png' },
-  { name: 'WhatsApp', slug: 'whatsapp', logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png' },
-  { name: 'TikTok', slug: 'tiktok', logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png' },
-  { name: 'YouTube', slug: 'youtube', logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png' },
-  { name: 'X', slug: 'x', logo: '/x.png' },
+type PlatformConfig = {
+    name: string;
+    slug: string;
+    logo: string;
+    stats: {
+        followers: { label: string; icon: React.ElementType };
+        following: { label: string; icon: React.ElementType };
+        posts: { label: string; icon: React.ElementType };
+    };
+};
+
+const platforms: PlatformConfig[] = [
+    { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Posts', icon: FileText },
+        } 
+    },
+    { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+        stats: {
+            followers: { label: 'Friends', icon: Users },
+            following: { label: 'Likes', icon: Heart },
+            posts: { label: 'Posts', icon: FileText },
+        } 
+    },
+    { name: 'WhatsApp', slug: 'whatsapp', logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
+        stats: {
+            followers: { label: 'Contacts', icon: Users },
+            following: { label: 'Groups', icon: UserPlus },
+            posts: { label: 'Statuses', icon: FileText },
+        } 
+    },
+    { name: 'TikTok', slug: 'tiktok', logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Videos', icon: Video },
+        }
+     },
+    { name: 'YouTube', slug: 'youtube', logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
+        stats: {
+            followers: { label: 'Subscribers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Videos', icon: Video },
+        }
+     },
+    { name: 'X', slug: 'x', logo: '/x.png',
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Tweets', icon: FileText },
+        }
+     },
 ];
+
+
+const defaultPlatform: PlatformConfig = {
+    name: 'Social Media',
+    slug: 'default',
+    logo: 'https://placehold.co/40x40.png',
+    stats: {
+        followers: { label: 'Followers', icon: Users },
+        following: { label: 'Following', icon: UserPlus },
+        posts: { label: 'Posts', icon: FileText },
+    },
+};
 
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
   const username = params.username as string;
-  const platform = params.platform as string;
+  const platformSlug = params.platform as string;
   const searchParams = useSearchParams();
   
   const [followers, setFollowers] = useState<string | null>(null);
@@ -48,7 +107,7 @@ export default function ProfilePage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const currentPlatform = platforms.find(p => p.slug === platform) || { name: 'Social Media', logo: 'https://placehold.co/40x40.png' };
+  const currentPlatform = platforms.find(p => p.slug === platformSlug) || defaultPlatform;
   const platformName = currentPlatform.name;
 
 
@@ -123,6 +182,18 @@ export default function ProfilePage() {
     }
     return (pkrAmount / PKR_TO_USD_RATE).toFixed(2);
   }
+  
+  const StatDisplay = ({ value, label, icon: Icon }: { value: string | null, label: string, icon: React.ElementType }) => {
+    if (!value) return null;
+    return (
+      <div className="text-center">
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-sm text-muted-foreground flex items-center gap-1">
+          <Icon className="h-3 w-3" /> {label}
+        </p>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
@@ -164,24 +235,9 @@ export default function ProfilePage() {
           <CardTitle className="font-headline text-3xl text-black">@{username}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           <div className="flex justify-center gap-8 pt-4 text-foreground">
-            {followers && (
-                <div className="text-center">
-                    <p className="text-2xl font-bold">{followers}</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3"/> Followers</p>
-                </div>
-            )}
-            {following && (
-                <div className="text-center">
-                    <p className="text-2xl font-bold">{following}</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><UserPlus className="h-3 w-3"/> Following</p>
-                </div>
-            )}
-            {posts && (
-                <div className="text-center">
-                    <p className="text-2xl font-bold">{posts}</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3"/> Posts</p>
-                </div>
-            )}
+            <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
+            <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
+            <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
           </div>
           <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
                 <div className="text-center">
@@ -200,7 +256,7 @@ export default function ProfilePage() {
         </CardHeader>
       </Card>
 
-      <div className="w-full max-w-3xl grid grid-cols-1 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>

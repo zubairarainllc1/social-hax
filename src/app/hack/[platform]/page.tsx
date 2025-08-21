@@ -7,19 +7,77 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText, Video, Heart } from "lucide-react";
 import Image from 'next/image';
 
 const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
 
-const platforms = [
-  { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png' },
-  { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png' },
-  { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png' },
-  { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png' },
-  { name: 'YouTube', slug: 'youtube', logo: '/youtube.png' },
-  { name: 'X', slug: 'x', logo: '/x.png' },
+type PlatformConfig = {
+    name: string;
+    slug: string;
+    logo: string;
+    stats: {
+        followers: { label: string; icon: React.ElementType };
+        following: { label: string; icon: React.ElementType };
+        posts: { label: string; icon: React.ElementType };
+    };
+};
+
+const platforms: PlatformConfig[] = [
+    { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Posts', icon: FileText },
+        } 
+    },
+    { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+        stats: {
+            followers: { label: 'Friends', icon: Users },
+            following: { label: 'Likes', icon: Heart },
+            posts: { label: 'Posts', icon: FileText },
+        } 
+    },
+    { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png',
+        stats: {
+            followers: { label: 'Contacts', icon: Users },
+            following: { label: 'Groups', icon: UserPlus },
+            posts: { label: 'Statuses', icon: FileText },
+        } 
+    },
+    { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png',
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Videos', icon: Video },
+        }
+     },
+    { name: 'YouTube', slug: 'youtube', logo: '/youtube.png',
+        stats: {
+            followers: { label: 'Subscribers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Videos', icon: Video },
+        }
+     },
+    { name: 'X', slug: 'x', logo: '/x.png',
+        stats: {
+            followers: { label: 'Followers', icon: Users },
+            following: { label: 'Following', icon: UserPlus },
+            posts: { label: 'Tweets', icon: FileText },
+        }
+     },
 ];
+
+const defaultPlatform: PlatformConfig = {
+    name: 'Social Media',
+    slug: 'default',
+    logo: 'https://placehold.co/40x40.png',
+    stats: {
+        followers: { label: 'Followers', icon: Users },
+        following: { label: 'Following', icon: UserPlus },
+        posts: { label: 'Posts', icon: FileText },
+    },
+};
 
 export default function HackPage() {
   const router = useRouter();
@@ -32,8 +90,24 @@ export default function HackPage() {
   const [following, setFollowing] = useState('');
   const [posts, setPosts] = useState('');
 
-  const currentPlatform = platforms.find(p => p.slug === platform) || { name: 'Social Media', logo: 'https://placehold.co/40x40.png' };
+  const currentPlatform = platforms.find(p => p.slug === platform) || defaultPlatform;
   const platformName = currentPlatform.name;
+  
+  const StatInput = ({ id, value, onChange, label, icon: Icon, placeholder }: { id: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, label: string, icon: React.ElementType, placeholder: string }) => (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-muted-foreground" /> {label}
+      </Label>
+      <Input
+        id={id}
+        type="number"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="bg-input"
+      />
+    </div>
+  );
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -105,18 +179,9 @@ export default function HackPage() {
                         </div>
                     )}
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="posts" className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground"/> Posts</Label>
-                    <Input id="posts" type="number" placeholder="e.g., 182" value={posts} onChange={e => setPosts(e.target.value)} className="bg-input"/>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="followers" className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/> Followers</Label>
-                    <Input id="followers" type="number" placeholder="e.g., 50000" value={followers} onChange={e => setFollowers(e.target.value)} className="bg-input"/>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="following" className="flex items-center gap-2"><UserPlus className="h-4 w-4 text-muted-foreground"/> Following</Label>
-                    <Input id="following" type="number" placeholder="e.g., 500" value={following} onChange={e => setFollowing(e.target.value)} className="bg-input"/>
-                </div>
+                <StatInput id="followers" value={followers} onChange={e => setFollowers(e.target.value)} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder="e.g., 50000" />
+                <StatInput id="following" value={following} onChange={e => setFollowing(e.target.value)} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder="e.g., 500" />
+                <StatInput id="posts" value={posts} onChange={e => setPosts(e.target.value)} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder="e.g., 182" />
             </div>
 
           </CardContent>

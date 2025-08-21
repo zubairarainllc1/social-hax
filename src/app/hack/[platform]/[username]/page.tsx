@@ -46,27 +46,25 @@ export default function ProfilePage() {
     const followingParam = searchParams.get('following');
     const postsParam = searchParams.get('posts');
     
-    let profileUrlFromStorage: string | null = null;
-    try {
-        // This code runs only on the client, so sessionStorage is available.
-        profileUrlFromStorage = sessionStorage.getItem(PROFILE_PIC_STORAGE_KEY);
-    } catch (error) {
-        console.error("Could not read from session storage", error);
-    }
-
+    // This code runs only on the client, so sessionStorage is available.
+    const profileUrlFromStorage = sessionStorage.getItem(PROFILE_PIC_STORAGE_KEY);
+    
     setFollowers(followersParam ? formatNumber(followersParam) : null);
     setFollowing(followingParam ? formatNumber(followingParam) : null);
     setPosts(postsParam ? formatNumber(postsParam) : null);
-    setAvatarUrl(profileUrlFromStorage || `https://i.pravatar.cc/128?u=${username}`);
-    
-    // Clean up storage
+
     if (profileUrlFromStorage) {
+        setAvatarUrl(profileUrlFromStorage);
+        // Clean up storage after use
         try {
             sessionStorage.removeItem(PROFILE_PIC_STORAGE_KEY);
         } catch (error) {
             console.error("Could not remove from session storage", error);
         }
+    } else {
+        setAvatarUrl(`https://i.pravatar.cc/128?u=${username}`);
     }
+
   }, [username, searchParams]);
 
 

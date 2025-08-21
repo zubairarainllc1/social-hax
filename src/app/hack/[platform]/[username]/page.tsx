@@ -29,8 +29,8 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('https://placehold.co/128x128.png');
 
-  const [instantAmount, setInstantAmount] = useState('200.00');
-  const [partialAmount, setPartialAmount] = useState('50.00');
+  const [instantAmount, setInstantAmount] = useState('50000.00');
+  const [partialAmount, setPartialAmount] = useState('15000.00');
   
   const [priceDialogInfo, setPriceDialogInfo] = useState<PriceDialogInfo | null>(null);
   const [newPrice, setNewPrice] = useState("");
@@ -158,18 +158,19 @@ export default function ProfilePage() {
       </Card>
 
       <div className="w-full max-w-3xl grid md:grid-cols-2 gap-6">
-          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-primary/10">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><CreditCard className="text-primary"/> Instant Order</CardTitle>
+              <CardTitle className="flex items-center gap-2"><CreditCard className="text-accent"/> Instant Order</CardTitle>
               <CardDescription>Full access, instant delivery.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <div className="text-4xl font-bold text-primary">${instantAmount}</div>
+              <div className="text-4xl font-bold text-accent">PKR {instantAmount}</div>
+              <p className="text-sm text-muted-foreground">Approx. ${instantAmount}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-primary"><Info className="h-3 w-3 mr-1"/>More Details</Button>
+                        <Button variant="ghost" className="text-xs justify-start p-0 h-auto hover:bg-transparent text-muted-foreground hover:text-accent"><Info className="h-3 w-3 mr-1"/>More Details</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
@@ -180,19 +181,20 @@ export default function ProfilePage() {
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
-                <Button onClick={() => openPriceDialog('instant')} className="w-full text-lg py-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button onClick={() => openPriceDialog('instant')} variant="destructive" className="w-full text-lg py-6 font-bold bg-accent text-accent-foreground hover:bg-accent/90">
                     Order Full Access
                 </Button>
             </CardFooter>
           </Card>
 
-          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-primary/10">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-accent/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
               <CardDescription>Pay in installments for partial data.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-               <div className="text-4xl font-bold text-accent">${partialAmount}</div>
+               <div className="text-4xl font-bold text-accent">PKR {partialAmount}</div>
+               <p className="text-sm text-muted-foreground">Approx. ${partialAmount}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>
@@ -221,20 +223,20 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>Update Price</DialogTitle>
             <DialogDescription>
-              Enter the new price for the {priceDialogInfo?.type} order.
+              Enter the new price in PKR for the {priceDialogInfo?.type} order.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="new-price" className="sr-only">New Price</Label>
             <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">PKR</span>
                 <Input
                     id="new-price"
                     type="number"
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
                     placeholder={priceDialogInfo?.currentValue}
-                    className="pl-8"
+                    className="pl-10"
                 />
             </div>
           </div>

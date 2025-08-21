@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 
 const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
+const PKR_TO_USD_RATE = 278.5; // Example exchange rate
 
 type PriceDialogInfo = {
     type: 'instant' | 'partial';
@@ -100,6 +101,14 @@ export default function ProfilePage() {
       reader.readAsDataURL(file);
     }
   };
+  
+  const convertPkrToUsd = (pkr: string) => {
+    const pkrAmount = parseFloat(pkr);
+    if (isNaN(pkrAmount)) {
+      return '0.00';
+    }
+    return (pkrAmount / PKR_TO_USD_RATE).toFixed(2);
+  }
 
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
@@ -165,7 +174,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="text-4xl font-bold text-accent">PKR {instantAmount}</div>
-              <p className="text-sm text-muted-foreground">Approx. ${instantAmount}</p>
+              <p className="text-sm text-muted-foreground">Approx. ${convertPkrToUsd(instantAmount)}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>
@@ -194,7 +203,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="flex-grow">
                <div className="text-4xl font-bold text-accent">PKR {partialAmount}</div>
-               <p className="text-sm text-muted-foreground">Approx. ${partialAmount}</p>
+               <p className="text-sm text-muted-foreground">Approx. ${convertPkrToUsd(partialAmount)}</p>
             </CardContent>
             <CardFooter className="flex-col items-stretch space-y-2">
                 <Dialog>

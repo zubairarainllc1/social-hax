@@ -102,7 +102,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex justify-center items-start pt-10">
+    <div className="flex flex-col items-center justify-start pt-10 gap-6">
       <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg shadow-primary/10">
         <CardHeader className="text-center">
           {avatarUrl && (
@@ -155,9 +155,10 @@ export default function ProfilePage() {
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          
-          <Card className="bg-background/50 flex flex-col">
+      </Card>
+
+      <div className="w-full max-w-3xl grid md:grid-cols-2 gap-6">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-primary/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><CreditCard className="text-primary"/> Instant Order</CardTitle>
               <CardDescription>Full access, instant delivery.</CardDescription>
@@ -185,7 +186,7 @@ export default function ProfilePage() {
             </CardFooter>
           </Card>
 
-          <Card className="bg-background/50 flex flex-col">
+          <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-primary/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-accent"/> Partial Order</CardTitle>
               <CardDescription>Pay in installments for partial data.</CardDescription>
@@ -212,8 +213,7 @@ export default function ProfilePage() {
                 </Button>
             </CardFooter>
           </Card>
-        </CardContent>
-      </Card>
+        </div>
       
       {/* Price editing dialog */}
       <Dialog open={!!priceDialogInfo} onOpenChange={(isOpen) => !isOpen && setPriceDialogInfo(null)}>

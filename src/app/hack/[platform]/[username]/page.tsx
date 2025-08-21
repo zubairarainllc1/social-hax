@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound, Video, Heart } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound, Video, Heart, MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 
@@ -31,46 +31,64 @@ type PlatformConfig = {
 };
 
 const platforms: PlatformConfig[] = [
-    { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+    { 
+        name: 'Instagram', 
+        slug: 'instagram', 
+        logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
             posts: { label: 'Posts', icon: FileText },
         } 
     },
-    { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+    { 
+        name: 'Facebook', 
+        slug: 'facebook', 
+        logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
         stats: {
             followers: { label: 'Friends', icon: Users },
             following: { label: 'Likes', icon: Heart },
             posts: { label: 'Posts', icon: FileText },
         } 
     },
-    { name: 'WhatsApp', slug: 'whatsapp', logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
+    { 
+        name: 'WhatsApp', 
+        slug: 'whatsapp', 
+        logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
         stats: {
             followers: { label: 'Contacts', icon: Users },
             following: { label: 'Groups', icon: UserPlus },
-            posts: { label: 'Statuses', icon: FileText },
+            posts: { label: 'Statuses', icon: MessageSquare },
         } 
     },
-    { name: 'TikTok', slug: 'tiktok', logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
+    { 
+        name: 'TikTok', 
+        slug: 'tiktok', 
+        logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
             posts: { label: 'Videos', icon: Video },
         }
      },
-    { name: 'YouTube', slug: 'youtube', logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
+    { 
+        name: 'YouTube', 
+        slug: 'youtube', 
+        logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
         stats: {
             followers: { label: 'Subscribers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
             posts: { label: 'Videos', icon: Video },
         }
      },
-    { name: 'X', slug: 'x', logo: '/x.png',
+    { 
+        name: 'X', 
+        slug: 'x', 
+        logo: '/x.png',
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
-            posts: { label: 'Tweets', icon: FileText },
+            posts: { label: 'Tweets', icon: MessageSquare },
         }
      },
 ];
@@ -188,12 +206,14 @@ export default function ProfilePage() {
     return (
       <div className="text-center">
         <p className="text-2xl font-bold">{value}</p>
-        <p className="text-sm text-muted-foreground flex items-center gap-1">
+        <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
           <Icon className="h-3 w-3" /> {label}
         </p>
       </div>
     );
   };
+
+  const displayName = platformSlug === 'whatsapp' ? username : `@${username}`;
 
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
@@ -232,7 +252,7 @@ export default function ProfilePage() {
                 </button>
             </div>
           )}
-          <CardTitle className="font-headline text-3xl text-black">@{username}</CardTitle>
+          <CardTitle className="font-headline text-3xl text-black">{displayName}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           <div className="flex justify-center gap-8 pt-4 text-foreground">
             <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
@@ -242,21 +262,21 @@ export default function ProfilePage() {
           <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
                 <div className="text-center">
                     <p className="text-lg font-bold text-green-500">Online</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
                 </div>
                 <div className="text-center">
                     <p className="text-lg font-bold">Active</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
                 </div>
                 <div className="text-center">
                     <p className="text-lg font-bold">Granted</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
                 </div>
           </div>
         </CardHeader>
       </Card>
 
-      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>
@@ -360,3 +380,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

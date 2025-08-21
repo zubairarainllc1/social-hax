@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText, Video, Heart } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText, Video, Heart, MessageSquare } from "lucide-react";
 import Image from 'next/image';
 
 const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
@@ -16,54 +16,83 @@ type PlatformConfig = {
     name: string;
     slug: string;
     logo: string;
+    mainInput: {
+        label: string;
+        placeholder: string;
+        type: string;
+    };
     stats: {
-        followers: { label: string; icon: React.ElementType };
-        following: { label: string; icon: React.ElementType };
-        posts: { label: string; icon: React.ElementType };
+        followers: { label: string; icon: React.ElementType; placeholder: string };
+        following: { label: string; icon: React.ElementType; placeholder: string };
+        posts: { label: string; icon: React.ElementType; placeholder: string };
     };
 };
 
 const platforms: PlatformConfig[] = [
-    { name: 'Instagram', slug: 'instagram', logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+    { 
+        name: 'Instagram', 
+        slug: 'instagram', 
+        logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+        mainInput: { label: 'Username (Required)', placeholder: '@username or account link', type: 'text' },
         stats: {
-            followers: { label: 'Followers', icon: Users },
-            following: { label: 'Following', icon: UserPlus },
-            posts: { label: 'Posts', icon: FileText },
+            followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 50k' },
+            following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 500' },
+            posts: { label: 'Posts', icon: FileText, placeholder: 'e.g., 182' },
         } 
     },
-    { name: 'Facebook', slug: 'facebook', logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+    { 
+        name: 'Facebook', 
+        slug: 'facebook', 
+        logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+        mainInput: { label: 'Username or Profile URL (Required)', placeholder: 'e.g., jane.doe or profile link', type: 'text' },
         stats: {
-            followers: { label: 'Friends', icon: Users },
-            following: { label: 'Likes', icon: Heart },
-            posts: { label: 'Posts', icon: FileText },
+            followers: { label: 'Friends', icon: Users, placeholder: 'e.g., 1,234' },
+            following: { label: 'Likes', icon: Heart, placeholder: 'e.g., 450' },
+            posts: { label: 'Posts', icon: FileText, placeholder: 'e.g., 98' },
         } 
     },
-    { name: 'WhatsApp', slug: 'whatsapp', logo: '/whatsapp.png',
+    { 
+        name: 'WhatsApp', 
+        slug: 'whatsapp', 
+        logo: 'https://static.vecteezy.com/system/resources/previews/042/127/116/non_2x/whatsapp-square-logo-on-a-transparent-background-free-png.png',
+        mainInput: { label: 'Phone Number (Required)', placeholder: '+1 123 456 7890', type: 'tel' },
         stats: {
-            followers: { label: 'Contacts', icon: Users },
-            following: { label: 'Groups', icon: UserPlus },
-            posts: { label: 'Statuses', icon: FileText },
+            followers: { label: 'Contacts', icon: Users, placeholder: 'e.g., 256' },
+            following: { label: 'Groups', icon: UserPlus, placeholder: 'e.g., 12' },
+            posts: { label: 'Statuses', icon: MessageSquare, placeholder: 'e.g., 3' },
         } 
     },
-    { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png',
+    { 
+        name: 'TikTok', 
+        slug: 'tiktok', 
+        logo: 'https://static.vecteezy.com/system/resources/previews/016/716/450/non_2x/tiktok-icon-free-png.png',
+        mainInput: { label: 'Username (Required)', placeholder: '@tiktok_star', type: 'text' },
         stats: {
-            followers: { label: 'Followers', icon: Users },
-            following: { label: 'Following', icon: UserPlus },
-            posts: { label: 'Videos', icon: Video },
+            followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 1.2M' },
+            following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 345' },
+            posts: { label: 'Videos', icon: Video, placeholder: 'e.g., 78' },
         }
      },
-    { name: 'YouTube', slug: 'youtube', logo: '/youtube.png',
+    { 
+        name: 'YouTube', 
+        slug: 'youtube', 
+        logo: 'https://static.vecteezy.com/system/resources/thumbnails/023/986/480/small_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png',
+        mainInput: { label: 'Channel Name or URL (Required)', placeholder: 'e.g., @channel or channel link', type: 'text' },
         stats: {
-            followers: { label: 'Subscribers', icon: Users },
-            following: { label: 'Following', icon: UserPlus },
-            posts: { label: 'Videos', icon: Video },
+            followers: { label: 'Subscribers', icon: Users, placeholder: 'e.g., 10M' },
+            following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 1' },
+            posts: { label: 'Videos', icon: Video, placeholder: 'e.g., 542' },
         }
      },
-    { name: 'X', slug: 'x', logo: '/x.png',
+    { 
+        name: 'X', 
+        slug: 'x', 
+        logo: '/x.png',
+        mainInput: { label: 'Username (Required)', placeholder: '@username', type: 'text'},
         stats: {
-            followers: { label: 'Followers', icon: Users },
-            following: { label: 'Following', icon: UserPlus },
-            posts: { label: 'Tweets', icon: FileText },
+            followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 100k' },
+            following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 320' },
+            posts: { label: 'Tweets', icon: MessageSquare, placeholder: 'e.g., 1,234' },
         }
      },
 ];
@@ -72,10 +101,11 @@ const defaultPlatform: PlatformConfig = {
     name: 'Social Media',
     slug: 'default',
     logo: 'https://placehold.co/40x40.png',
+    mainInput: { label: 'Username (Required)', placeholder: '@username or account link', type: 'text' },
     stats: {
-        followers: { label: 'Followers', icon: Users },
-        following: { label: 'Following', icon: UserPlus },
-        posts: { label: 'Posts', icon: FileText },
+        followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 50k' },
+        following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 500' },
+        posts: { label: 'Posts', icon: FileText, placeholder: 'e.g., 182' },
     },
 };
 
@@ -100,7 +130,7 @@ export default function HackPage() {
       </Label>
       <Input
         id={id}
-        type="number"
+        type="text" // Use text to allow for flexible inputs like "1.2M"
         placeholder={placeholder}
         value={value}
         onChange={onChange}
@@ -139,7 +169,8 @@ export default function HackPage() {
         ...(posts.trim() && { posts: posts.trim() }),
       }).toString();
       
-      router.push(`/hack/${platform}/${username.trim()}?${query}`);
+      const targetIdentifier = username.trim().replace(/^@/, '');
+      router.push(`/hack/${platform}/${targetIdentifier}?${query}`);
     }
   };
 
@@ -158,13 +189,14 @@ export default function HackPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username">Username (Required)</Label>
+              <Label htmlFor="username">{currentPlatform.mainInput.label}</Label>
                <Input
                 id="username"
-                placeholder="@username or account link"
+                placeholder={currentPlatform.mainInput.placeholder}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="text-lg py-6 bg-background/50 border-2 border-border focus:border-primary focus:ring-primary"
+                type={currentPlatform.mainInput.type}
                 required
               />
             </div>
@@ -179,9 +211,9 @@ export default function HackPage() {
                         </div>
                     )}
                 </div>
-                <StatInput id="followers" value={followers} onChange={e => setFollowers(e.target.value)} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder="e.g., 50000" />
-                <StatInput id="following" value={following} onChange={e => setFollowing(e.target.value)} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder="e.g., 500" />
-                <StatInput id="posts" value={posts} onChange={e => setPosts(e.target.value)} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder="e.g., 182" />
+                 <StatInput id="followers" value={followers} onChange={e => setFollowers(e.target.value)} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder={currentPlatform.stats.followers.placeholder} />
+                 <StatInput id="following" value={following} onChange={e => setFollowing(e.target.value)} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder={currentPlatform.stats.following.placeholder} />
+                 <StatInput id="posts" value={posts} onChange={e => setPosts(e.target.value)} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder={currentPlatform.stats.posts.placeholder} />
             </div>
 
           </CardContent>
@@ -199,3 +231,5 @@ export default function HackPage() {
     </div>
   );
 }
+
+    

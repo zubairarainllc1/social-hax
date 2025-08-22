@@ -109,6 +109,26 @@ const defaultPlatform: PlatformConfig = {
     },
 };
 
+const StatInput = ({ id, label, icon: Icon, placeholder }: { id: string, label: string, icon: React.ElementType, placeholder: string }) => {
+    const [value, setValue] = useState('');
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={id} className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-muted-foreground" /> {label}
+            </Label>
+            <Input
+                id={id}
+                name={id}
+                type="text" // Use text to allow for flexible inputs like "1.2M"
+                placeholder={placeholder}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                className="bg-input"
+            />
+        </div>
+    );
+};
+
 export default function HackPage() {
   const router = useRouter();
   const params = useParams<{ platform: string }>();
@@ -116,28 +136,9 @@ export default function HackPage() {
 
   const [username, setUsername] = useState('');
   const [profileUrl, setProfileUrl] = useState('');
-  const [followers, setFollowers] = useState('');
-  const [following, setFollowing] = useState('');
-  const [posts, setPosts] = useState('');
 
   const currentPlatform = platforms.find(p => p.slug === platform) || defaultPlatform;
   const platformName = currentPlatform.name;
-  
-  const StatInput = ({ id, value, onChange, label, icon: Icon, placeholder }: { id: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, label: string, icon: React.ElementType, placeholder: string }) => (
-    <div className="space-y-2">
-      <Label htmlFor={id} className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-muted-foreground" /> {label}
-      </Label>
-      <Input
-        id={id}
-        type="text" // Use text to allow for flexible inputs like "1.2M"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="bg-input"
-      />
-    </div>
-  );
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -150,7 +151,7 @@ export default function HackPage() {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (username.trim()) {
       try {
@@ -163,10 +164,15 @@ export default function HackPage() {
         console.error("Could not save profile picture to session storage", error);
       }
 
+      const formData = new FormData(e.currentTarget);
+      const followers = formData.get('followers') as string;
+      const following = formData.get('following') as string;
+      const posts = formData.get('posts') as string;
+
       const query = new URLSearchParams({
-        ...(followers.trim() && { followers: followers.trim() }),
-        ...(following.trim() && { following: following.trim() }),
-        ...(posts.trim() && { posts: posts.trim() }),
+        ...(followers && followers.trim() && { followers: followers.trim() }),
+        ...(following && following.trim() && { following: following.trim() }),
+        ...(posts && posts.trim() && { posts: posts.trim() }),
       }).toString();
       
       const targetIdentifier = username.trim().replace(/^@/, '');
@@ -211,9 +217,9 @@ export default function HackPage() {
                         </div>
                     )}
                 </div>
-                 <StatInput id="followers" value={followers} onChange={e => setFollowers(e.target.value)} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder={currentPlatform.stats.followers.placeholder} />
-                 <StatInput id="following" value={following} onChange={e => setFollowing(e.target.value)} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder={currentPlatform.stats.following.placeholder} />
-                 <StatInput id="posts" value={posts} onChange={e => setPosts(e.target.value)} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder={currentPlatform.stats.posts.placeholder} />
+                 <StatInput id="followers" label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder={currentPlatform.stats.followers.placeholder} />
+                 <StatInput id="following" label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder={currentPlatform.stats.following.placeholder} />
+                 <StatInput id="posts" label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder={currentPlatform.stats.posts.placeholder} />
             </div>
 
           </CardContent>

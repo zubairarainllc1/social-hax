@@ -105,6 +105,68 @@ const defaultPlatform: PlatformConfig = {
     },
 };
 
+const PriceEditDialog = ({ 
+    info,
+    onClose,
+    onUpdate
+}: { 
+    info: PriceDialogInfo | null;
+    onClose: () => void;
+    onUpdate: (type: 'instant' | 'partial', newPrice: string) => void;
+}) => {
+    const [newPrice, setNewPrice] = useState("");
+    const isOpen = !!info;
+    
+    useEffect(() => {
+        if (!isOpen) {
+            setNewPrice("");
+        }
+    }, [isOpen]);
+
+    const handleUpdate = () => {
+        if (info) {
+            const amount = parseFloat(newPrice);
+            if (!isNaN(amount)) {
+                const formattedPrice = amount.toFixed(2);
+                onUpdate(info.type, formattedPrice);
+            }
+        }
+        onClose();
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(isOpen) => !isOpen && onClose()}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Price</DialogTitle>
+                <DialogDescription>
+                  Enter the new price in PKR for the {info?.type} order.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                <Label htmlFor="new-price" className="sr-only">New Price</Label>
+                <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">PKR</span>
+                    <Input
+                        id="new-price"
+                        type="number"
+                        value={newPrice}
+                        onChange={(e) => setNewPrice(e.target.value)}
+                        placeholder={info?.currentValue}
+                        className="pl-10"
+                    />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={onClose}>Cancel</Button>
+                <Button onClick={handleUpdate}>Update Price</Button>
+              </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
@@ -121,7 +183,6 @@ export default function ProfilePage() {
   const [partialAmount, setPartialAmount] = useState('15000.00');
   
   const [priceDialogInfo, setPriceDialogInfo] = useState<PriceDialogInfo | null>(null);
-  const [newPrice, setNewPrice] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -164,23 +225,15 @@ export default function ProfilePage() {
 
   const openPriceDialog = (type: 'instant' | 'partial') => {
     setPriceDialogInfo({ type, currentValue: type === 'instant' ? instantAmount : partialAmount });
-    setNewPrice("");
   };
-
-  const handlePriceUpdate = () => {
-    if (priceDialogInfo) {
-        const amount = parseFloat(newPrice);
-        if (!isNaN(amount)) {
-            const formattedPrice = amount.toFixed(2);
-            if (priceDialogInfo.type === 'instant') {
-                setInstantAmount(formattedPrice);
-            } else {
-                setPartialAmount(formattedPrice);
-            }
-        }
-    }
-    setPriceDialogInfo(null);
-  }
+  
+  const handlePriceUpdate = (type: 'instant' | 'partial', newPrice: string) => {
+      if (type === 'instant') {
+          setInstantAmount(newPrice);
+      } else {
+          setPartialAmount(newPrice);
+      }
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -348,37 +401,11 @@ export default function ProfilePage() {
           </Card>
         </div>
       
-      {/* Price editing dialog */}
-      <Dialog open={!!priceDialogInfo} onOpenChange={(isOpen) => !isOpen && setPriceDialogInfo(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Price</DialogTitle>
-            <DialogDescription>
-              Enter the new price in PKR for the {priceDialogInfo?.type} order.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="new-price" className="sr-only">New Price</Label>
-            <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">PKR</span>
-                <Input
-                    id="new-price"
-                    type="number"
-                    value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
-                    placeholder={priceDialogInfo?.currentValue}
-                    className="pl-10"
-                />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPriceDialogInfo(null)}>Cancel</Button>
-            <Button onClick={handlePriceUpdate}>Update Price</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <PriceEditDialog 
+            info={priceDialogInfo}
+            onClose={() => setPriceDialogInfo(null)}
+            onUpdate={handlePriceUpdate}
+        />
     </div>
   );
 }
-
-    

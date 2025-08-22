@@ -179,27 +179,25 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
   };
 
 const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Order | null; isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onUpdate: (updatedOrder: Order) => void; }) => {
-    const [localOrder, setLocalOrder] = useState<Order | null>(order);
+    const [localOrder, setLocalOrder] = useState<Order | null>(null);
 
     useEffect(() => {
         setLocalOrder(order);
     }, [order]);
     
-    const handleChange = (field: keyof Order, value: any) => {
+    const handleChange = (field: keyof Omit<Order, 'progress'>, value: any) => {
         setLocalOrder(o => o ? { ...o, [field]: value } : null);
     };
-
-    if (!localOrder) return null;
+    
+    const handleProgressChange = (value: number) => {
+        setLocalOrder(o => o ? { ...o, progress: value } : null);
+    }
 
     const handleUpdate = () => {
         if (localOrder) {
             onUpdate(localOrder);
         }
     };
-    
-    const handleProgressChange = (value: number) => {
-        setLocalOrder(o => o ? { ...o, progress: value } : null);
-    }
     
     const incrementProgress = (amount: number) => {
         setLocalOrder(o => {
@@ -209,8 +207,15 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
         });
     }
 
+    if (!localOrder) return null;
+
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            if (!open) {
+                setLocalOrder(null);
+            }
+            onOpenChange(open);
+        }}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Manage Order: {localOrder.id}</DialogTitle>
@@ -490,6 +495,7 @@ export default function OrdersPage() {
     
 
     
+
 
 
 

@@ -38,11 +38,11 @@ const platformLogos: { [key: string]: string } = {
 const platformServices: { [key: string]: string } = {
   whatsapp: 'Whatsapp Access With Complete 3 Month Old Chat or Media',
   snapchat: 'Snapchat Access With Complete Media',
-  instagram: 'Instagram Access',
-  facebook: 'Facebook Access',
-  x: 'X Access',
-  youtube: 'YouTube Access',
-  tiktok: 'TikTok Access',
+  instagram: 'Instagram Account Access',
+  facebook: 'Facebook Account Access',
+  x: 'X Account Access',
+  youtube: 'YouTube Account Access',
+  tiktok: 'TikTok Account Access',
 };
 
 type OrderStatus = 'Completed' | 'Pending' | 'Partial' | 'Frozen' | 'Canceled';
@@ -155,7 +155,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
                 <div>
                   <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
                   <CardDescription>
-                    <span className="font-bold text-cyan-400 text-shadow-[0_0_8px_rgba(0,255,255,0.7)]">{order.account}</span> - Order placed at {order.time}
+                    <span className="text-cyan-400 text-shadow-[0_0_8px_rgba(0,255,255,0.7)]">{order.account}</span> - Order placed at {order.time}
                   </CardDescription>
                 </div>
               </div>

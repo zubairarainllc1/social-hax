@@ -142,15 +142,14 @@ const PriceEditDialog = ({
     onClose: () => void;
     onUpdate: (type: 'instant' | 'partial', newPrice: string) => void;
 }) => {
-    const [state, dispatch] = useReducer(priceDialogReducer, { newPrice: '' });
-    const { newPrice } = state;
+    const [newPrice, setNewPrice] = useState('');
     const isOpen = !!info;
     
     useEffect(() => {
-        if (!isOpen) {
-            dispatch({ type: 'RESET', payload: null });
+        if (isOpen && info) {
+            setNewPrice('');
         }
-    }, [isOpen]);
+    }, [isOpen, info]);
 
     const handleUpdate = () => {
         if (info) {
@@ -180,7 +179,7 @@ const PriceEditDialog = ({
                         id="new-price"
                         type="number"
                         value={newPrice}
-                        onChange={(e) => dispatch({ type: 'SET_NEW_PRICE', payload: e.target.value })}
+                        onChange={(e) => setNewPrice(e.target.value)}
                         placeholder={info?.currentValue}
                         className="pl-10"
                     />
@@ -339,28 +338,26 @@ export default function ProfilePage() {
           <CardTitle className="font-headline text-3xl text-black">{displayName}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
           {currentPlatform.features.stats && currentPlatform.stats && (
-            <>
-                <div className="flex justify-center gap-8 pt-4 text-foreground">
-                    <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
-                    <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
-                    <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
-                </div>
-                <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
-                        <div className="text-center">
-                            <p className="text-lg font-bold text-green-500">Online</p>
-                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-lg font-bold">Active</p>
-                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-lg font-bold">Granted</p>
-                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
-                        </div>
-                </div>
-            </>
+            <div className="flex justify-center gap-8 pt-4 text-foreground">
+                <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
+                <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
+                <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
+            </div>
           )}
+          <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
+            <div className="text-center">
+                <p className="text-lg font-bold text-green-500">Active</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+            </div>
+            <div className="text-center">
+                <p className="text-lg font-bold">Active</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+            </div>
+            <div className="text-center">
+                <p className="text-lg font-bold">Granted</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
+            </div>
+          </div>
         </CardHeader>
       </Card>
 

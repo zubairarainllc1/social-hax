@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Settings, Plus, DollarSign, Shield, Calendar as CalendarIcon, GripVertical } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,8 +21,6 @@ import { cn } from '@/lib/utils';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { Identifier, XYCoord } from 'dnd-core';
-import React, { useRef } from 'react';
-
 
 const platformLogos: { [key: string]: string } = {
   instagram: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png',
@@ -129,7 +127,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
     drag(drop(ref))
 
     return (
-      <div ref={preview} style={{ opacity }}>
+      <div ref={preview} style={{ opacity }} className="group">
         <Card ref={ref} data-handler-id={handlerId} className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm relative">
           <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none w-8 h-full" ref={drag}>
              <GripVertical className="h-6 w-6 text-muted-foreground/50 absolute top-1/2 -translate-y-1/2 left-1 hidden group-hover:block" />
@@ -185,10 +183,10 @@ export default function OrdersPage() {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
     const updatedInitialOrders = initialOrdersData.map(order => ({
         ...order,
-        date: today
+        date: today.toISOString()
     }));
     setOrders(updatedInitialOrders);
   }, []);
@@ -203,7 +201,7 @@ export default function OrdersPage() {
   const handleCreateOrder = () => {
     if (!newOrder.account || !newOrder.price) return;
     const newId = `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    const newDate = new Date().toISOString().split('T')[0];
+    const newDate = new Date().toISOString();
     const createdOrder: Order = {
       ...newOrder,
       id: newId,
@@ -235,14 +233,14 @@ export default function OrdersPage() {
     return orders.filter(o => o.status.toLowerCase() === activeTab.toLowerCase());
   }, [activeTab, orders]);
   
-  const moveCard = (dragIndex: number, hoverIndex: number) => {
-    setOrders((prevOrders) => {
+  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
+    setOrders((prevOrders: Order[]) => {
        const newOrders = [...prevOrders];
        const [draggedItem] = newOrders.splice(dragIndex, 1);
        newOrders.splice(hoverIndex, 0, draggedItem);
        return newOrders;
     });
-  };
+  }, []);
 
   const PageContent = () => (
     <div className="w-full">

@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { Identifier, XYCoord } from 'dnd-core';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const platformLogos: { [key: string]: string } = {
   instagram: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png',
@@ -130,7 +131,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
       <div ref={preview} style={{ opacity }} className="group">
         <Card ref={ref} data-handler-id={handlerId} className="bg-card/70 border-border hover:border-primary/50 transition-colors shadow-sm relative">
           <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-move touch-none w-8 h-full" ref={drag}>
-             <GripVertical className="h-6 w-6 text-muted-foreground/50 absolute top-1/2 -translate-y-1/2 left-1 hidden group-hover:block" />
+             <GripVertical className="h-6 w-6 text-muted-foreground/50 absolute top-1/2 -translate-y-1/2 left-1 hidden" />
           </div>
           <CardHeader className="pl-12">
             <div className="flex justify-between items-start gap-4">
@@ -181,6 +182,7 @@ export default function OrdersPage() {
   const [isCreateDialogOpen, setCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const today = new Date();
@@ -241,6 +243,8 @@ export default function OrdersPage() {
        return newOrders;
     });
   }, []);
+  
+  const TABS = ['all', 'completed', 'pending', 'partial', 'frozen', 'canceled'];
 
   const PageContent = () => (
     <div className="w-full">
@@ -298,29 +302,46 @@ export default function OrdersPage() {
         </div>
       <h1 className="font-headline text-4xl font-bold text-center mb-2">Order Dashboard</h1>
       <p className="text-muted-foreground text-center mb-10">Track and manage the status of your hacking orders.</p>
+      
+      {isMobile ? (
+        <div className="mb-6">
+          <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                  {TABS.map(tab => (
+                      <SelectItem key={tab} value={tab}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</SelectItem>
+                  ))}
+              </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-6">
+                {TABS.map(tab => (
+                   <TabsTrigger key={tab} value={tab}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</TabsTrigger>
+                ))}
+            </TabsList>
+        </Tabs>
+      )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 mb-6">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="partial">Partial</TabsTrigger>
-              <TabsTrigger value="frozen">Frozen</TabsTrigger>
-              <TabsTrigger value="canceled">Canceled</TabsTrigger>
-          </TabsList>
-          <TabsContent value={activeTab}>
-             <div className="space-y-6">
-                {filteredOrders.length > 0 ? (
-                    filteredOrders.map((order, i) => <OrderCard key={order.id} index={i} order={order} moveCard={moveCard} onEdit={handleOpenEditDialog} />)
-                ) : (
-                    <p className="text-center text-muted-foreground py-10">No orders found for this status.</p>
-                )}
-            </div>
-          </TabsContent>
-      </Tabs>
+      <div className="space-y-6">
+          {filteredOrders.length > 0 ? (
+              filteredOrders.map((order, i) => <OrderCard key={order.id} index={i} order={order} moveCard={moveCard} onEdit={handleOpenEditDialog} />)
+          ) : (
+              <p className="text-center text-muted-foreground py-10">No orders found for this status.</p>
+          )}
+      </div>
+
       
       {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => {
+            if (!isOpen) {
+                setEditingOrder(null);
+            }
+            setEditDialogOpen(isOpen);
+        }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Manage Order: {editingOrder?.id}</DialogTitle>
@@ -374,3 +395,4 @@ export default function OrdersPage() {
     
 
     
+

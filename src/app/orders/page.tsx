@@ -155,7 +155,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
                 <div>
                   <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
                   <CardDescription>
-                    <span className="text-cyan-400 text-shadow-[0_0_8px_rgba(0,255,255,0.7)]">{order.account}</span> - Order placed at {order.time}
+                    <span className="text-red-500">{order.account}</span> - Order placed at {order.time}
                   </CardDescription>
                 </div>
               </div>
@@ -314,12 +314,21 @@ const initialFormState = {
 
 
 const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'status' | 'progress'>) => void; }) => {
-    const [formState, setFormState] = useState(initialFormState);
+    const [formState, dispatch] = useReducer((state: any, action: {type: string, payload: any}) => {
+        switch(action.type) {
+            case 'UPDATE_FIELD':
+                return { ...state, [action.payload.field]: action.payload.value };
+            case 'RESET':
+                return initialFormState;
+            default:
+                return state;
+        }
+    }, initialFormState);
 
     const { platform, account, price, type, time } = formState;
 
     const handleFieldChange = (field: string, value: any) => {
-        setFormState(prev => ({ ...prev, [field]: value }));
+        dispatch({ type: 'UPDATE_FIELD', payload: { field, value } });
     };
 
     const handleCreate = () => {
@@ -335,13 +344,13 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
             time,
             ...(type === 'Partial' && { remaining: parseFloat(price).toFixed(2) })
         });
-        setFormState(initialFormState);
+        dispatch({ type: 'RESET', payload: null });
         onOpenChange(false);
     };
 
     const handleOpenChange = (open: boolean) => {
         if (!open) {
-            setFormState(initialFormState);
+            dispatch({ type: 'RESET', payload: null });
         }
         onOpenChange(open);
     };

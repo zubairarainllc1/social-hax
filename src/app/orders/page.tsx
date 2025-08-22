@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical, Minus, PlusCircle, Server } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical, Minus, Server } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from '@/components/ui/label';
@@ -154,7 +154,9 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
                 {logo && <Image src={logo} alt={`${order.platform} logo`} width={40} height={40} className="rounded-full" />}
                 <div>
                   <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
-                  <CardDescription>{order.account} - Order placed at {order.time}</CardDescription>
+                  <CardDescription>
+                    <span className="font-bold text-cyan-400 text-shadow-[0_0_8px_rgba(0,255,255,0.7)]">{order.account}</span> - Order placed at {order.time}
+                  </CardDescription>
                 </div>
               </div>
               <Badge variant={style.variant} className={`whitespace-nowrap ${style.className}`}>
@@ -201,9 +203,9 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
         }
     }, [order]);
 
-    const handleSliderChange = (value: number[]) => {
+    const handleSliderChange = useCallback((value: number[]) => {
         setLocalOrder(prev => prev ? { ...prev, progress: value[0] } : null);
-    };
+    }, []);
 
     const handleInputChange = (field: keyof Order, value: string) => {
         setLocalOrder(prev => prev ? { ...prev, [field]: value } : null);
@@ -302,63 +304,50 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
     );
 };
 
-
-const formReducer = (state: any, action: { type: string; payload: any; field?: string }) => {
-    switch (action.type) {
-        case 'UPDATE_FIELD':
-            if (action.field) {
-                return { ...state, [action.field]: action.payload };
-            }
-            return state;
-        case 'RESET':
-            return {
-                platform: 'instagram',
-                account: '',
-                price: '',
-                type: 'Instant',
-                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            };
-        default:
-            return state;
-    }
+const initialFormState = {
+    platform: 'instagram',
+    account: '',
+    price: '',
+    type: 'Instant' as 'Instant' | 'Partial',
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
 };
 
 
 const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'status' | 'progress'>) => void; }) => {
-    const [formState, dispatch] = useReducer(formReducer, {
-        platform: 'instagram',
-        account: '',
-        price: '',
-        type: 'Instant',
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-    });
+    const [formState, setFormState] = useState(initialFormState);
 
     const { platform, account, price, type, time } = formState;
 
     const handleFieldChange = (field: string, value: any) => {
-        dispatch({ type: 'UPDATE_FIELD', field, payload: value });
+        setFormState(prev => ({ ...prev, [field]: value }));
     };
 
     const handleCreate = () => {
         if (!account || !price) return;
+
+        const finalAccount = platform !== 'whatsapp' && !account.startsWith('@') ? `@${account}` : account;
+        
         onCreate({
             platform,
-            account,
+            account: finalAccount,
             price: parseFloat(price).toFixed(2),
             type,
             time,
             ...(type === 'Partial' && { remaining: parseFloat(price).toFixed(2) })
         });
-        dispatch({ type: 'RESET', payload: null });
+        setFormState(initialFormState);
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (open: boolean) => {
+        if (!open) {
+            setFormState(initialFormState);
+        }
+        onOpenChange(open);
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => {
-            if (!open) {
-                dispatch({ type: 'RESET', payload: null });
-            }
-            onOpenChange(open);
-        }}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Order</DialogTitle>
@@ -378,7 +367,18 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="account" className="text-right">Username</Label>
-                        <Input id="account" value={account} onChange={e => handleFieldChange('account', e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
+                        <div className="col-span-3 relative flex items-center">
+                            {platform !== 'whatsapp' && (
+                                <span className="absolute left-3 text-muted-foreground">@</span>
+                            )}
+                             <Input 
+                                id="account" 
+                                value={account} 
+                                onChange={e => handleFieldChange('account', e.target.value)} 
+                                className={cn(platform !== 'whatsapp' && "pl-8")} 
+                                placeholder={platform === 'whatsapp' ? "e.g., 123-456-7890" : "username"}
+                            />
+                        </div>
                     </div>
                      <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="price" className="text-right">Price (PKR)</Label>
@@ -556,5 +556,3 @@ export default function OrdersPage() {
     </DndProvider>
   )
 }
-
-    

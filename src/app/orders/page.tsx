@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical, Minus, PlusCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical, Minus, PlusCircle, Server } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,11 +35,21 @@ const platformLogos: { [key: string]: string } = {
   snapchat: '/snapchat.png',
 };
 
+const platformServices: { [key: string]: string } = {
+  whatsapp: 'Whatsapp Access With Complete 3 Month Old Chat or Media',
+  snapchat: 'Snapchat Access With Complete Media',
+  instagram: 'Instagram Access',
+  facebook: 'Facebook Access',
+  x: 'X Access',
+  youtube: 'YouTube Access',
+  tiktok: 'TikTok Access',
+};
+
 type OrderStatus = 'Completed' | 'Pending' | 'Partial' | 'Frozen' | 'Canceled';
 
 type Order = {
   id: string;
-  date: string;
+  time: string;
   status: OrderStatus;
   progress: number;
   account: string;
@@ -49,7 +59,7 @@ type Order = {
   remaining?: string;
 };
 
-const initialOrdersData: Omit<Order, 'date'>[] = [
+const initialOrdersData: Omit<Order, 'time'>[] = [
     { id: 'ORD-84B2A1', status: 'Completed', progress: 100, account: '@john_doe_fb', platform: 'facebook', type: 'Instant', price: '50000.00' },
     { id: 'ORD-C3D7E5', status: 'Pending', progress: 45, account: '@jane_doe_ig', platform: 'instagram', type: 'Partial', price: '15000.00', remaining: '8250.00' },
     { id: 'ORD-F9A8B7', status: 'Partial', progress: 75, account: '@hacker_x_yt', platform: 'youtube', type: 'Partial', price: '25000.00', remaining: '6250.00' },
@@ -79,6 +89,8 @@ interface DragItem {
 const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: number; moveCard: (dragIndex: number, hoverIndex: number) => void; onEdit: (order: Order) => void; }) => {
     const style = statusStyles[order.status];
     const logo = platformLogos[order.platform];
+    const serviceDescription = platformServices[order.platform] || `${order.platform.charAt(0).toUpperCase() + order.platform.slice(1)} Access`;
+
     const ref = useRef<HTMLDivElement>(null)
     const [{ handlerId }, drop] = useDrop<
         DragItem,
@@ -142,7 +154,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
                 {logo && <Image src={logo} alt={`${order.platform} logo`} width={40} height={40} className="rounded-full" />}
                 <div>
                   <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
-                  <CardDescription>{order.account} - Order placed on {format(new Date(order.date), "PPP")}</CardDescription>
+                  <CardDescription>{order.account} - Order placed at {order.time}</CardDescription>
                 </div>
               </div>
               <Badge variant={style.variant} className={`whitespace-nowrap ${style.className}`}>
@@ -160,6 +172,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
               </div>
             </div>
             <Separator />
+             <div className="flex items-center gap-1 text-sm text-muted-foreground"><Server className="h-4 w-4" /> Service: <span className="font-medium text-foreground">{serviceDescription}</span></div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 text-sm">
               <div className="flex flex-col gap-2 text-muted-foreground">
                   <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>
@@ -209,6 +222,13 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
             setLocalOrder({ ...localOrder, progress: newProgress });
         }
     };
+    
+    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (localOrder) {
+            setLocalOrder({ ...localOrder, time: e.target.value });
+        }
+    }
+
 
     if (!localOrder) return null;
 
@@ -239,6 +259,16 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
                                 10%
                             </Button>
                         </div>
+                    </div>
+                    
+                    <div>
+                        <Label htmlFor="time">Time</Label>
+                        <Input 
+                            id="time"
+                            type="time"
+                            value={localOrder.time}
+                            onChange={handleTimeChange}
+                        />
                     </div>
 
                     <div>
@@ -286,6 +316,7 @@ const formReducer = (state: any, action: { type: string; payload: any; field?: s
                 account: '',
                 price: '',
                 type: 'Instant',
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
             };
         default:
             return state;
@@ -293,15 +324,16 @@ const formReducer = (state: any, action: { type: string; payload: any; field?: s
 };
 
 
-const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'date' | 'status' | 'progress'>) => void; }) => {
+const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'status' | 'progress'>) => void; }) => {
     const [formState, dispatch] = useReducer(formReducer, {
         platform: 'instagram',
         account: '',
         price: '',
         type: 'Instant',
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
     });
 
-    const { platform, account, price, type } = formState;
+    const { platform, account, price, type, time } = formState;
 
     const handleFieldChange = (field: string, value: any) => {
         dispatch({ type: 'UPDATE_FIELD', field, payload: value });
@@ -314,6 +346,7 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
             account,
             price: parseFloat(price).toFixed(2),
             type,
+            time,
             ...(type === 'Partial' && { remaining: parseFloat(price).toFixed(2) })
         });
         dispatch({ type: 'RESET', payload: null });
@@ -351,6 +384,10 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
                         <Label htmlFor="price" className="text-right">Price (PKR)</Label>
                         <Input id="price" type="number" value={price} onChange={e => handleFieldChange('price', e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
                     </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="time" className="text-right">Time</Label>
+                        <Input id="time" type="time" value={time} onChange={e => handleFieldChange('time', e.target.value)} className="col-span-3" />
+                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="type" className="text-right">Type</Label>
                          <Select value={type} onValueChange={(value: 'Instant' | 'Partial') => handleFieldChange('type', value)}>
@@ -385,21 +422,21 @@ export default function OrdersPage() {
       if (storedOrders) {
         setOrders(JSON.parse(storedOrders));
       } else {
-        const today = new Date().toISOString();
-        const initialOrdersWithDate = initialOrdersData.map(order => ({
+        const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const initialOrdersWithTime = initialOrdersData.map(order => ({
             ...order,
-            date: today
+            time: currentTime
         }));
-        setOrders(initialOrdersWithDate);
+        setOrders(initialOrdersWithTime);
       }
     } catch (error) {
       console.error("Could not read orders from localStorage", error);
-        const today = new Date().toISOString();
-        const initialOrdersWithDate = initialOrdersData.map(order => ({
+        const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const initialOrdersWithTime = initialOrdersData.map(order => ({
             ...order,
-            date: today
+            time: currentTime
         }));
-      setOrders(initialOrdersWithDate);
+      setOrders(initialOrdersWithTime);
     }
   }, []);
 
@@ -415,13 +452,11 @@ export default function OrdersPage() {
   }, [orders]);
 
 
-  const handleCreateOrder = (newOrderData: Omit<Order, 'id' | 'date' | 'status' | 'progress'>) => {
+  const handleCreateOrder = (newOrderData: Omit<Order, 'id' | 'status' | 'progress'>) => {
     const newId = `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    const newDate = new Date().toISOString();
     const createdOrder: Order = {
       ...newOrderData,
       id: newId,
-      date: newDate,
       status: 'Pending',
       progress: 0,
     };
@@ -521,3 +556,5 @@ export default function OrdersPage() {
     </DndProvider>
   )
 }
+
+    

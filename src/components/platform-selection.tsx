@@ -11,6 +11,7 @@ const platforms = [
   { name: 'TikTok', slug: 'tiktok', logo: '/tiktok.png', description: "Explore TikTok account access tools." },
   { name: 'YouTube', slug: 'youtube', logo: '/youtube.png', description: "Unlock YouTube channel control." },
   { name: 'X', slug: 'x', logo: '/x.png', description: "Access X compromise services." },
+  { name: 'Snapchat', slug: 'snapchat', logo: '/snapchat.png', description: "Access Snapchat account information." },
 ];
 
 export default function PlatformSelection() {

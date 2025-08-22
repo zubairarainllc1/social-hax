@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useReducer } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,11 @@ type PlatformConfig = {
         placeholder: string;
         type: string;
     };
-    stats: {
+    features: {
+        profilePicture: boolean;
+        stats: boolean;
+    };
+    stats?: {
         followers: { label: string; icon: React.ElementType; placeholder: string };
         following: { label: string; icon: React.ElementType; placeholder: string };
         posts: { label: string; icon: React.ElementType; placeholder: string };
@@ -34,6 +38,7 @@ const platforms: PlatformConfig[] = [
         slug: 'instagram', 
         logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
         mainInput: { label: 'Username (Required)', placeholder: '@username or account link', type: 'text' },
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 50k' },
             following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 500' },
@@ -45,6 +50,7 @@ const platforms: PlatformConfig[] = [
         slug: 'facebook', 
         logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
         mainInput: { label: 'Username or Profile URL (Required)', placeholder: 'e.g., jane.doe or profile link', type: 'text' },
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Friends', icon: Users, placeholder: 'e.g., 1,234' },
             following: { label: 'Likes', icon: Heart, placeholder: 'e.g., 450' },
@@ -56,6 +62,7 @@ const platforms: PlatformConfig[] = [
         slug: 'whatsapp', 
         logo: '/whatsapp.png',
         mainInput: { label: 'Phone Number (Required)', placeholder: '+1 123 456 7890', type: 'tel' },
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Contacts', icon: Users, placeholder: 'e.g., 256' },
             following: { label: 'Groups', icon: UserPlus, placeholder: 'e.g., 12' },
@@ -67,6 +74,7 @@ const platforms: PlatformConfig[] = [
         slug: 'tiktok', 
         logo: '/tiktok.png',
         mainInput: { label: 'Username (Required)', placeholder: '@tiktok_star', type: 'text' },
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 1.2M' },
             following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 345' },
@@ -78,6 +86,7 @@ const platforms: PlatformConfig[] = [
         slug: 'youtube', 
         logo: '/youtube.png',
         mainInput: { label: 'Channel Name or URL (Required)', placeholder: 'e.g., @channel or channel link', type: 'text' },
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Subscribers', icon: Users, placeholder: 'e.g., 10M' },
             following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 1' },
@@ -89,11 +98,19 @@ const platforms: PlatformConfig[] = [
         slug: 'x', 
         logo: '/x.png',
         mainInput: { label: 'Username (Required)', placeholder: '@username', type: 'text'},
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 100k' },
             following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 320' },
             posts: { label: 'Tweets', icon: MessageSquare, placeholder: 'e.g., 1,234' },
         }
+     },
+     { 
+        name: 'Snapchat', 
+        slug: 'snapchat', 
+        logo: '/snapchat.png',
+        mainInput: { label: 'Username (Required)', placeholder: '@username', type: 'text'},
+        features: { profilePicture: false, stats: false },
      },
 ];
 
@@ -102,6 +119,7 @@ const defaultPlatform: PlatformConfig = {
     slug: 'default',
     logo: 'https://placehold.co/40x40.png',
     mainInput: { label: 'Username (Required)', placeholder: '@username or account link', type: 'text' },
+    features: { profilePicture: true, stats: true },
     stats: {
         followers: { label: 'Followers', icon: Users, placeholder: 'e.g., 50k' },
         following: { label: 'Following', icon: UserPlus, placeholder: 'e.g., 500' },
@@ -109,8 +127,17 @@ const defaultPlatform: PlatformConfig = {
     },
 };
 
-const StatInput = ({ id, label, icon: Icon, placeholder }: { id: string, label: string, icon: React.ElementType, placeholder: string }) => {
-    const [value, setValue] = useState('');
+const formReducer = (state: any, action: { type: string; payload: any; }) => {
+    switch (action.type) {
+        case 'UPDATE_FIELD':
+            return { ...state, [action.payload.field]: action.payload.value };
+        default:
+            return state;
+    }
+};
+
+
+const StatInput = ({ id, label, icon: Icon, placeholder, value, onChange }: { id: string; label: string; icon: React.ElementType; placeholder: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }) => {
     return (
         <div className="space-y-2">
             <Label htmlFor={id} className="flex items-center gap-2">
@@ -119,10 +146,10 @@ const StatInput = ({ id, label, icon: Icon, placeholder }: { id: string, label: 
             <Input
                 id={id}
                 name={id}
-                type="text" // Use text to allow for flexible inputs like "1.2M"
+                type="text"
                 placeholder={placeholder}
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={onChange}
                 className="bg-input"
             />
         </div>
@@ -134,18 +161,29 @@ export default function HackPage() {
   const params = useParams<{ platform: string }>();
   const { platform } = params;
 
-  const [username, setUsername] = useState('');
-  const [profileUrl, setProfileUrl] = useState('');
+  const [formState, dispatch] = useReducer(formReducer, {
+      username: '',
+      profileUrl: '',
+      followers: '',
+      following: '',
+      posts: '',
+  });
+
+  const { username, profileUrl, followers, following, posts } = formState;
 
   const currentPlatform = platforms.find(p => p.slug === platform) || defaultPlatform;
   const platformName = currentPlatform.name;
 
+  const handleFieldChange = (field: string, value: any) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field, value } });
+  };
+  
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileUrl(reader.result as string);
+        handleFieldChange('profileUrl', reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -163,17 +201,13 @@ export default function HackPage() {
       } catch (error) {
         console.error("Could not save profile picture to session storage", error);
       }
+      
+      const queryParams: { [key: string]: string } = {};
+      if (followers && followers.trim()) queryParams.followers = followers.trim();
+      if (following && following.trim()) queryParams.following = following.trim();
+      if (posts && posts.trim()) queryParams.posts = posts.trim();
 
-      const formData = new FormData(e.currentTarget);
-      const followers = formData.get('followers') as string;
-      const following = formData.get('following') as string;
-      const posts = formData.get('posts') as string;
-
-      const query = new URLSearchParams({
-        ...(followers && followers.trim() && { followers: followers.trim() }),
-        ...(following && following.trim() && { following: following.trim() }),
-        ...(posts && posts.trim() && { posts: posts.trim() }),
-      }).toString();
+      const query = new URLSearchParams(queryParams).toString();
       
       const targetIdentifier = username.trim().replace(/^@/, '');
       router.push(`/hack/${platform}/${targetIdentifier}?${query}`);
@@ -200,14 +234,14 @@ export default function HackPage() {
                 id="username"
                 placeholder={currentPlatform.mainInput.placeholder}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => handleFieldChange('username', e.target.value)}
                 className="text-lg py-6 bg-background/50 border-2 border-border focus:border-primary focus:ring-primary"
                 type={currentPlatform.mainInput.type}
                 required
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {currentPlatform.features.profilePicture && (
                 <div className="space-y-2">
                     <Label htmlFor="profileUrl" className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Profile Picture</Label>
                     <Input id="profileUrl" type="file" accept="image/*" onChange={handleProfilePictureChange} className="bg-input"/>
@@ -217,11 +251,15 @@ export default function HackPage() {
                         </div>
                     )}
                 </div>
-                 <StatInput id="followers" label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder={currentPlatform.stats.followers.placeholder} />
-                 <StatInput id="following" label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder={currentPlatform.stats.following.placeholder} />
-                 <StatInput id="posts" label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder={currentPlatform.stats.posts.placeholder} />
-            </div>
+            )}
 
+            {currentPlatform.features.stats && currentPlatform.stats && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <StatInput id="followers" label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} placeholder={currentPlatform.stats.followers.placeholder} value={followers} onChange={e => handleFieldChange('followers', e.target.value)} />
+                 <StatInput id="following" label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} placeholder={currentPlatform.stats.following.placeholder} value={following} onChange={e => handleFieldChange('following', e.target.value)} />
+                 <StatInput id="posts" label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} placeholder={currentPlatform.stats.posts.placeholder} value={posts} onChange={e => handleFieldChange('posts', e.target.value)} />
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button

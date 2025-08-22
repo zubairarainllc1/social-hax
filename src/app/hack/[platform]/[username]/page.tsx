@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useReducer, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,7 +23,11 @@ type PlatformConfig = {
     name: string;
     slug: string;
     logo: string;
-    stats: {
+    features: {
+        profilePicture: boolean;
+        stats: boolean;
+    };
+    stats?: {
         followers: { label: string; icon: React.ElementType };
         following: { label: string; icon: React.ElementType };
         posts: { label: string; icon: React.ElementType };
@@ -35,6 +39,7 @@ const platforms: PlatformConfig[] = [
         name: 'Instagram', 
         slug: 'instagram', 
         logo: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png', 
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
@@ -45,6 +50,7 @@ const platforms: PlatformConfig[] = [
         name: 'Facebook', 
         slug: 'facebook', 
         logo: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Friends', icon: Users },
             following: { label: 'Likes', icon: Heart },
@@ -55,6 +61,7 @@ const platforms: PlatformConfig[] = [
         name: 'WhatsApp', 
         slug: 'whatsapp', 
         logo: '/whatsapp.png',
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Contacts', icon: Users },
             following: { label: 'Groups', icon: UserPlus },
@@ -65,6 +72,7 @@ const platforms: PlatformConfig[] = [
         name: 'TikTok', 
         slug: 'tiktok', 
         logo: '/tiktok.png',
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
@@ -75,6 +83,7 @@ const platforms: PlatformConfig[] = [
         name: 'YouTube', 
         slug: 'youtube', 
         logo: '/youtube.png',
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Subscribers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
@@ -85,11 +94,18 @@ const platforms: PlatformConfig[] = [
         name: 'X', 
         slug: 'x', 
         logo: '/x.png',
+        features: { profilePicture: true, stats: true },
         stats: {
             followers: { label: 'Followers', icon: Users },
             following: { label: 'Following', icon: UserPlus },
             posts: { label: 'Tweets', icon: MessageSquare },
         }
+     },
+     { 
+        name: 'Snapchat', 
+        slug: 'snapchat', 
+        logo: '/snapchat.png',
+        features: { profilePicture: false, stats: false },
      },
 ];
 
@@ -98,11 +114,23 @@ const defaultPlatform: PlatformConfig = {
     name: 'Social Media',
     slug: 'default',
     logo: 'https://placehold.co/40x40.png',
+    features: { profilePicture: true, stats: true },
     stats: {
         followers: { label: 'Followers', icon: Users },
         following: { label: 'Following', icon: UserPlus },
         posts: { label: 'Posts', icon: FileText },
     },
+};
+
+const priceDialogReducer = (state: any, action: { type: string, payload: any }) => {
+    switch (action.type) {
+        case 'SET_NEW_PRICE':
+            return { ...state, newPrice: action.payload };
+        case 'RESET':
+            return { ...state, newPrice: '' };
+        default:
+            return state;
+    }
 };
 
 const PriceEditDialog = ({ 
@@ -114,12 +142,13 @@ const PriceEditDialog = ({
     onClose: () => void;
     onUpdate: (type: 'instant' | 'partial', newPrice: string) => void;
 }) => {
-    const [newPrice, setNewPrice] = useState("");
+    const [state, dispatch] = useReducer(priceDialogReducer, { newPrice: '' });
+    const { newPrice } = state;
     const isOpen = !!info;
     
     useEffect(() => {
         if (!isOpen) {
-            setNewPrice("");
+            dispatch({ type: 'RESET', payload: null });
         }
     }, [isOpen]);
 
@@ -151,7 +180,7 @@ const PriceEditDialog = ({
                         id="new-price"
                         type="number"
                         value={newPrice}
-                        onChange={(e) => setNewPrice(e.target.value)}
+                        onChange={(e) => dispatch({ type: 'SET_NEW_PRICE', payload: e.target.value })}
                         placeholder={info?.currentValue}
                         className="pl-10"
                     />
@@ -208,7 +237,7 @@ export default function ProfilePage() {
     setFollowing(followingParam ? formatNumber(followingParam) : null);
     setPosts(postsParam ? formatNumber(postsParam) : null);
 
-    if (profileUrlFromStorage) {
+    if (currentPlatform.features.profilePicture && profileUrlFromStorage) {
         setAvatarUrl(profileUrlFromStorage);
         // Clean up storage after use
         try {
@@ -216,11 +245,13 @@ export default function ProfilePage() {
         } catch (error) {
             console.error("Could not remove from session storage", error);
         }
-    } else {
+    } else if (currentPlatform.features.profilePicture) {
         setAvatarUrl(`https://i.pravatar.cc/128?u=${username}`);
+    } else {
+        setAvatarUrl('');
     }
 
-  }, [username, searchParams]);
+  }, [username, searchParams, currentPlatform.features.profilePicture]);
 
 
   const openPriceDialog = (type: 'instant' | 'partial') => {
@@ -278,7 +309,7 @@ export default function ProfilePage() {
                 </div>
                 <CardTitle className="font-headline text-3xl text-primary">Hacking {platformName}</CardTitle>
             </div>
-          {avatarUrl && (
+          {currentPlatform.features.profilePicture && avatarUrl && (
             <div className="mx-auto mb-4 relative group w-32 h-32">
                 <input 
                     type="file" 
@@ -307,29 +338,33 @@ export default function ProfilePage() {
           )}
           <CardTitle className="font-headline text-3xl text-black">{displayName}</CardTitle>
           <CardDescription>Account located. Ready to proceed.</CardDescription>
-          <div className="flex justify-center gap-8 pt-4 text-foreground">
-            <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
-            <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
-            <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
-          </div>
-          <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
-                <div className="text-center">
-                    <p className="text-lg font-bold text-green-500">Online</p>
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+          {currentPlatform.features.stats && currentPlatform.stats && (
+            <>
+                <div className="flex justify-center gap-8 pt-4 text-foreground">
+                    <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
+                    <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
+                    <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
                 </div>
-                <div className="text-center">
-                    <p className="text-lg font-bold">Active</p>
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+                <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
+                        <div className="text-center">
+                            <p className="text-lg font-bold text-green-500">Online</p>
+                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-lg font-bold">Active</p>
+                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-lg font-bold">Granted</p>
+                            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
+                        </div>
                 </div>
-                <div className="text-center">
-                    <p className="text-lg font-bold">Granted</p>
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
-                </div>
-          </div>
+            </>
+          )}
         </CardHeader>
       </Card>
 
-      <div className="w-full max-w-3xl grid grid-cols-1 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-red-500"/> Partial Order</CardTitle>

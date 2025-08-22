@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef, useReducer } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -32,6 +32,7 @@ const platformLogos: { [key: string]: string } = {
   tiktok: '/tiktok.png',
   x: '/x.png',
   whatsapp: '/whatsapp.png',
+  snapchat: '/snapchat.png',
 };
 
 type OrderStatus = 'Completed' | 'Pending' | 'Partial' | 'Frozen' | 'Canceled';
@@ -182,40 +183,37 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
     const [localOrder, setLocalOrder] = useState<Order | null>(null);
 
     useEffect(() => {
-        setLocalOrder(order);
+        if (order) {
+            setLocalOrder(order);
+        }
     }, [order]);
-    
-    const handleChange = (field: keyof Omit<Order, 'progress'>, value: any) => {
-        setLocalOrder(o => o ? { ...o, [field]: value } : null);
+
+    const handleSliderChange = (value: number[]) => {
+        setLocalOrder(prev => prev ? { ...prev, progress: value[0] } : null);
     };
-    
-    const handleProgressChange = (value: number) => {
-        setLocalOrder(o => o ? { ...o, progress: value } : null);
-    }
+
+    const handleInputChange = (field: keyof Order, value: string) => {
+        setLocalOrder(prev => prev ? { ...prev, [field]: value } : null);
+    };
 
     const handleUpdate = () => {
         if (localOrder) {
             onUpdate(localOrder);
         }
+        onOpenChange(false);
     };
-    
+
     const incrementProgress = (amount: number) => {
-        setLocalOrder(o => {
-            if (!o) return null;
-            const newProgress = Math.max(0, Math.min(100, o.progress + amount));
-            return { ...o, progress: newProgress };
-        });
-    }
+        if (localOrder) {
+            const newProgress = Math.max(0, Math.min(100, localOrder.progress + amount));
+            setLocalOrder({ ...localOrder, progress: newProgress });
+        }
+    };
 
     if (!localOrder) return null;
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => {
-            if (!open) {
-                setLocalOrder(null);
-            }
-            onOpenChange(open);
-        }}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Manage Order: {localOrder.id}</DialogTitle>
@@ -227,7 +225,7 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
                         <Slider 
                             id="progress" 
                             value={[localOrder.progress]} 
-                            onValueChange={([val]) => handleProgressChange(val)} 
+                            onValueChange={handleSliderChange} 
                             max={100} 
                             step={1} 
                         />
@@ -245,7 +243,7 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
 
                     <div>
                         <Label htmlFor="status">Status</Label>
-                        <Select value={localOrder.status} onValueChange={(value: OrderStatus) => handleChange('status', value)}>
+                        <Select value={localOrder.status} onValueChange={(value: OrderStatus) => handleInputChange('status', value)}>
                             <SelectTrigger id="status">
                                 <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
@@ -262,7 +260,7 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
                                 id="remaining"
                                 type="number"
                                 value={localOrder.remaining || ''}
-                                onChange={e => handleChange('remaining', e.target.value)}
+                                onChange={e => handleInputChange('remaining', e.target.value)}
                                 placeholder="e.g., 5000.00"
                             />
                         </div>
@@ -274,11 +272,40 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
     );
 };
 
+
+const formReducer = (state: any, action: { type: string; payload: any; field?: string }) => {
+    switch (action.type) {
+        case 'UPDATE_FIELD':
+            if (action.field) {
+                return { ...state, [action.field]: action.payload };
+            }
+            return state;
+        case 'RESET':
+            return {
+                platform: 'instagram',
+                account: '',
+                price: '',
+                type: 'Instant',
+            };
+        default:
+            return state;
+    }
+};
+
+
 const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'date' | 'status' | 'progress'>) => void; }) => {
-    const [platform, setPlatform] = useState('instagram');
-    const [account, setAccount] = useState('');
-    const [price, setPrice] = useState('');
-    const [type, setType] = useState<'Instant' | 'Partial'>('Instant');
+    const [formState, dispatch] = useReducer(formReducer, {
+        platform: 'instagram',
+        account: '',
+        price: '',
+        type: 'Instant',
+    });
+
+    const { platform, account, price, type } = formState;
+
+    const handleFieldChange = (field: string, value: any) => {
+        dispatch({ type: 'UPDATE_FIELD', field, payload: value });
+    };
 
     const handleCreate = () => {
         if (!account || !price) return;
@@ -289,14 +316,16 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
             type,
             ...(type === 'Partial' && { remaining: parseFloat(price).toFixed(2) })
         });
-        setAccount('');
-        setPrice('');
-        setType('Instant');
-        setPlatform('instagram');
+        dispatch({ type: 'RESET', payload: null });
     };
 
     return (
-         <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            if (!open) {
+                dispatch({ type: 'RESET', payload: null });
+            }
+            onOpenChange(open);
+        }}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create New Order</DialogTitle>
@@ -305,7 +334,7 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="platform" className="text-right">Platform</Label>
-                        <Select value={platform} onValueChange={setPlatform}>
+                        <Select value={platform} onValueChange={(value) => handleFieldChange('platform', value)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select a platform" />
                             </SelectTrigger>
@@ -316,15 +345,15 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="account" className="text-right">Username</Label>
-                        <Input id="account" value={account} onChange={e => setAccount(e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
+                        <Input id="account" value={account} onChange={e => handleFieldChange('account', e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
                     </div>
                      <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="price" className="text-right">Price (PKR)</Label>
-                        <Input id="price" type="number" value={price} onChange={e => setPrice(e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
+                        <Input id="price" type="number" value={price} onChange={e => handleFieldChange('price', e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="type" className="text-right">Type</Label>
-                         <Select value={type} onValueChange={(value: 'Instant' | 'Partial') => setType(value)}>
+                         <Select value={type} onValueChange={(value: 'Instant' | 'Partial') => handleFieldChange('type', value)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select order type" />
                             </SelectTrigger>
@@ -356,19 +385,19 @@ export default function OrdersPage() {
       if (storedOrders) {
         setOrders(JSON.parse(storedOrders));
       } else {
-        const today = new Date();
+        const today = new Date().toISOString();
         const initialOrdersWithDate = initialOrdersData.map(order => ({
             ...order,
-            date: today.toISOString()
+            date: today
         }));
         setOrders(initialOrdersWithDate);
       }
     } catch (error) {
       console.error("Could not read orders from localStorage", error);
-        const today = new Date();
+        const today = new Date().toISOString();
         const initialOrdersWithDate = initialOrdersData.map(order => ({
             ...order,
-            date: today.toISOString()
+            date: today
         }));
       setOrders(initialOrdersWithDate);
     }
@@ -492,12 +521,3 @@ export default function OrdersPage() {
     </DndProvider>
   )
 }
-    
-
-    
-
-
-
-
-
-

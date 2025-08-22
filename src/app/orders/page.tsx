@@ -184,6 +184,10 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
     useEffect(() => {
         setLocalOrder(order);
     }, [order]);
+    
+    const handleChange = (field: keyof Order, value: any) => {
+        setLocalOrder(o => o ? { ...o, [field]: value } : null);
+    };
 
     if (!localOrder) return null;
 
@@ -236,7 +240,7 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
 
                     <div>
                         <Label htmlFor="status">Status</Label>
-                        <Select value={localOrder.status} onValueChange={(value: OrderStatus) => setLocalOrder(o => o ? { ...o, status: value } : null)}>
+                        <Select value={localOrder.status} onValueChange={(value: OrderStatus) => handleChange('status', value)}>
                             <SelectTrigger id="status">
                                 <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
@@ -253,13 +257,80 @@ const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Ord
                                 id="remaining"
                                 type="number"
                                 value={localOrder.remaining || ''}
-                                onChange={e => setLocalOrder(o => o ? { ...o, remaining: e.target.value } : null)}
+                                onChange={e => handleChange('remaining', e.target.value)}
                                 placeholder="e.g., 5000.00"
                             />
                         </div>
                     )}
                     <Button onClick={handleUpdate}>Update Order</Button>
                 </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onCreate: (newOrder: Omit<Order, 'id' | 'date' | 'status' | 'progress'>) => void; }) => {
+    const [platform, setPlatform] = useState('instagram');
+    const [account, setAccount] = useState('');
+    const [price, setPrice] = useState('');
+    const [type, setType] = useState<'Instant' | 'Partial'>('Instant');
+
+    const handleCreate = () => {
+        if (!account || !price) return;
+        onCreate({
+            platform,
+            account,
+            price: parseFloat(price).toFixed(2),
+            type,
+            ...(type === 'Partial' && { remaining: parseFloat(price).toFixed(2) })
+        });
+        setAccount('');
+        setPrice('');
+        setType('Instant');
+        setPlatform('instagram');
+    };
+
+    return (
+         <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create New Order</DialogTitle>
+                    <DialogDescription>Fill in the details to create a new fake order.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="platform" className="text-right">Platform</Label>
+                        <Select value={platform} onValueChange={setPlatform}>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select a platform" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.keys(platformLogos).map(p => <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="account" className="text-right">Username</Label>
+                        <Input id="account" value={account} onChange={e => setAccount(e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="price" className="text-right">Price (PKR)</Label>
+                        <Input id="price" type="number" value={price} onChange={e => setPrice(e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="type" className="text-right">Type</Label>
+                         <Select value={type} onValueChange={(value: 'Instant' | 'Partial') => setType(value)}>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select order type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Instant">Instant</SelectItem>
+                                <SelectItem value="Partial">Partial</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <Button onClick={handleCreate}>Create Order</Button>
             </DialogContent>
         </Dialog>
     );
@@ -309,40 +380,19 @@ export default function OrdersPage() {
     }
   }, [orders]);
 
-  const [newOrder, setNewOrder] = useState({
-    platform: 'instagram',
-    account: '',
-    price: '',
-    type: 'Instant' as 'Instant' | 'Partial'
-  });
 
-  const handleNewOrderChange = (field: keyof typeof newOrder, value: string) => {
-    setNewOrder(prev => ({...prev, [field]: value}));
-  }
-
-  const handleCreateOrder = () => {
-    if (!newOrder.account || !newOrder.price) return;
+  const handleCreateOrder = (newOrderData: Omit<Order, 'id' | 'date' | 'status' | 'progress'>) => {
     const newId = `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const newDate = new Date().toISOString();
     const createdOrder: Order = {
-      platform: newOrder.platform,
-      account: newOrder.account,
-      price: parseFloat(newOrder.price).toFixed(2),
-      type: newOrder.type,
+      ...newOrderData,
       id: newId,
       date: newDate,
       status: 'Pending',
       progress: 0,
-      ...(newOrder.type === 'Partial' && { remaining: parseFloat(newOrder.price).toFixed(2) })
     };
     setOrders(prev => [createdOrder, ...prev]);
     setCreateDialogOpen(false);
-    setNewOrder({
-      platform: 'instagram',
-      account: '',
-      price: '',
-      type: 'Instant'
-    });
   };
   
   const handleOpenEditDialog = (order: Order) => {
@@ -380,51 +430,7 @@ export default function OrdersPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Home
                 </Link>
             </Button>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setCreateDialogOpen}>
-                <DialogTrigger asChild>
-                    <Button variant="default"><Plus className="mr-2 h-4 w-4"/> New Order</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Create New Order</DialogTitle>
-                        <DialogDescription>Fill in the details to create a new fake order.</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="platform" className="text-right">Platform</Label>
-                            <Select value={newOrder.platform} onValueChange={(value) => handleNewOrderChange('platform', value)}>
-                                <SelectTrigger className="col-span-3">
-                                    <SelectValue placeholder="Select a platform" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {Object.keys(platformLogos).map(p => <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="account" className="text-right">Username</Label>
-                            <Input id="account" value={newOrder.account} onChange={e => handleNewOrderChange('account', e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
-                        </div>
-                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="price" className="text-right">Price (PKR)</Label>
-                            <Input id="price" type="number" value={newOrder.price} onChange={e => handleNewOrderChange('price', e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="type" className="text-right">Type</Label>
-                             <Select value={newOrder.type} onValueChange={(value: 'Instant' | 'Partial') => handleNewOrderChange('type', value)}>
-                                <SelectTrigger className="col-span-3">
-                                    <SelectValue placeholder="Select order type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Instant">Instant</SelectItem>
-                                    <SelectItem value="Partial">Partial</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <Button onClick={handleCreateOrder}>Create Order</Button>
-                </DialogContent>
-            </Dialog>
+            <Button variant="default" onClick={() => setCreateDialogOpen(true)}><Plus className="mr-2 h-4 w-4"/> New Order</Button>
         </div>
       <h1 className="font-headline text-4xl font-bold text-center mb-2">Order Dashboard</h1>
       <p className="text-muted-foreground text-center mb-10">Track and manage the status of your hacking orders.</p>
@@ -460,6 +466,11 @@ export default function OrdersPage() {
           )}
       </div>
 
+      <CreateOrderDialog 
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onCreate={handleCreateOrder}
+      />
       
       <EditOrderDialog 
         order={editingOrder} 
@@ -479,6 +490,7 @@ export default function OrdersPage() {
     
 
     
+
 
 
 

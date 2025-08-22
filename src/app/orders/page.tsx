@@ -89,7 +89,7 @@ interface DragItem {
 const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: number; moveCard: (dragIndex: number, hoverIndex: number) => void; onEdit: (order: Order) => void; }) => {
     const style = statusStyles[order.status];
     const logo = platformLogos[order.platform];
-    const serviceDescription = platformServices[order.platform] || `${order.platform.charAt(0).toUpperCase() + order.platform.slice(1)} Access`;
+    const serviceDescription = platformServices[order.platform] || `${order.platform.charAt(0).toUpperCase() + order.platform.slice(1)} Account Access`;
 
     const ref = useRef<HTMLDivElement>(null)
     const [{ handlerId }, drop] = useDrop<
@@ -155,7 +155,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
                 <div>
                   <CardTitle className="font-mono text-primary text-lg">{order.id}</CardTitle>
                   <CardDescription>
-                    <span className="text-red-500">{order.account}</span> - Order placed at {order.time}
+                    <span className="text-red-500 font-normal">{order.account}</span> - Order placed at {order.time}
                   </CardDescription>
                 </div>
               </div>
@@ -174,7 +174,7 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
               </div>
             </div>
             <Separator />
-             <div className="flex items-center gap-1 text-sm text-muted-foreground"><Server className="h-4 w-4" /> Service: <span className="font-medium text-foreground/70">{serviceDescription}</span></div>
+             <div className="flex items-start gap-1 text-sm text-muted-foreground"><Server className="h-4 w-4 mt-0.5" /> Service: <span className="font-medium text-foreground/70">{serviceDescription}</span></div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 text-sm">
               <div className="flex flex-col gap-2 text-muted-foreground">
                   <div className="flex items-center gap-1"><Shield className="h-4 w-4" /> Type: <span className="font-medium text-foreground">{order.type}</span></div>

@@ -23,6 +23,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { Identifier, XYCoord } from 'dnd-core';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+const ORDERS_STORAGE_KEY = 'socialhax-orders';
+
 const platformLogos: { [key: string]: string } = {
   instagram: 'https://png.pngtree.com/png-clipart/20180626/ourmid/pngtree-instagram-icon-instagram-logo-png-image_3584853.png',
   facebook: 'https://acbrd.org.au/wp-content/uploads/2020/08/facebook-circular-logo.png',
@@ -184,14 +186,41 @@ export default function OrdersPage() {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const isMobile = useIsMobile();
 
+  // Load orders from localStorage on initial render
   useEffect(() => {
-    const today = new Date();
-    const updatedInitialOrders = initialOrdersData.map(order => ({
-        ...order,
-        date: today.toISOString()
-    }));
-    setOrders(updatedInitialOrders);
+    try {
+      const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
+      if (storedOrders) {
+        setOrders(JSON.parse(storedOrders));
+      } else {
+        const today = new Date();
+        const initialOrdersWithDate = initialOrdersData.map(order => ({
+            ...order,
+            date: today.toISOString()
+        }));
+        setOrders(initialOrdersWithDate);
+      }
+    } catch (error) {
+      console.error("Could not read orders from localStorage", error);
+        const today = new Date();
+        const initialOrdersWithDate = initialOrdersData.map(order => ({
+            ...order,
+            date: today.toISOString()
+        }));
+      setOrders(initialOrdersWithDate);
+    }
   }, []);
+
+  // Save orders to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (orders.length > 0) {
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+      }
+    } catch (error) {
+      console.error("Could not save orders to localStorage", error);
+    }
+  }, [orders]);
 
   const [newOrderPlatform, setNewOrderPlatform] = useState('instagram');
   const [newOrderAccount, setNewOrderAccount] = useState('');
@@ -398,5 +427,6 @@ export default function OrdersPage() {
     
 
     
+
 
 

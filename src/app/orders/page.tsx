@@ -193,29 +193,32 @@ export default function OrdersPage() {
     setOrders(updatedInitialOrders);
   }, []);
 
-  const [newOrder, setNewOrder] = useState({
-    platform: 'instagram',
-    account: '',
-    price: '',
-    type: 'Instant' as 'Instant' | 'Partial'
-  });
+  const [newOrderPlatform, setNewOrderPlatform] = useState('instagram');
+  const [newOrderAccount, setNewOrderAccount] = useState('');
+  const [newOrderPrice, setNewOrderPrice] = useState('');
+  const [newOrderType, setNewOrderType] = useState<'Instant' | 'Partial'>('Instant');
 
   const handleCreateOrder = () => {
-    if (!newOrder.account || !newOrder.price) return;
+    if (!newOrderAccount || !newOrderPrice) return;
     const newId = `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const newDate = new Date().toISOString();
     const createdOrder: Order = {
-      ...newOrder,
+      platform: newOrderPlatform,
+      account: newOrderAccount,
+      price: parseFloat(newOrderPrice).toFixed(2),
+      type: newOrderType,
       id: newId,
       date: newDate,
       status: 'Pending',
       progress: 0,
-      price: parseFloat(newOrder.price).toFixed(2),
-      ...(newOrder.type === 'Partial' && { remaining: parseFloat(newOrder.price).toFixed(2) })
+      ...(newOrderType === 'Partial' && { remaining: parseFloat(newOrderPrice).toFixed(2) })
     };
     setOrders(prev => [createdOrder, ...prev]);
     setCreateDialogOpen(false);
-    setNewOrder({ platform: 'instagram', account: '', price: '', type: 'Instant' });
+    setNewOrderPlatform('instagram');
+    setNewOrderAccount('');
+    setNewOrderPrice('');
+    setNewOrderType('Instant');
   };
   
   const handleOpenEditDialog = (order: Order) => {
@@ -266,7 +269,7 @@ export default function OrdersPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="platform" className="text-right">Platform</Label>
-                            <Select value={newOrder.platform} onValueChange={(value) => setNewOrder(p => ({ ...p, platform: value }))}>
+                            <Select value={newOrderPlatform} onValueChange={(value) => setNewOrderPlatform(value)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Select a platform" />
                                 </SelectTrigger>
@@ -277,15 +280,15 @@ export default function OrdersPage() {
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="account" className="text-right">Username</Label>
-                            <Input id="account" value={newOrder.account} onChange={e => setNewOrder(p => ({ ...p, account: e.target.value }))} className="col-span-3" placeholder="e.g., @username"/>
+                            <Input id="account" value={newOrderAccount} onChange={e => setNewOrderAccount(e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
                         </div>
                          <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="price" className="text-right">Price (PKR)</Label>
-                            <Input id="price" type="number" value={newOrder.price} onChange={e => setNewOrder(p => ({ ...p, price: e.target.value }))} className="col-span-3" placeholder="e.g., 50000"/>
+                            <Input id="price" type="number" value={newOrderPrice} onChange={e => setNewOrderPrice(e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="type" className="text-right">Type</Label>
-                             <Select value={newOrder.type} onValueChange={(value: 'Instant' | 'Partial') => setNewOrder(p => ({ ...p, type: value }))}>
+                             <Select value={newOrderType} onValueChange={(value: 'Instant' | 'Partial') => setNewOrderType(value)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Select order type" />
                                 </SelectTrigger>
@@ -395,4 +398,5 @@ export default function OrdersPage() {
     
 
     
+
 

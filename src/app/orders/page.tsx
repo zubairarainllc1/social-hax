@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Download, Plus, DollarSign, Shield, GripVertical, Minus, PlusCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -177,6 +177,93 @@ const OrderCard = ({ order, index, moveCard, onEdit }: { order: Order; index: nu
       </div>
     );
   };
+
+const EditOrderDialog = ({ order, isOpen, onOpenChange, onUpdate }: { order: Order | null; isOpen: boolean; onOpenChange: (isOpen: boolean) => void; onUpdate: (updatedOrder: Order) => void; }) => {
+    const [localOrder, setLocalOrder] = useState<Order | null>(order);
+
+    useEffect(() => {
+        setLocalOrder(order);
+    }, [order]);
+
+    if (!localOrder) return null;
+
+    const handleUpdate = () => {
+        if (localOrder) {
+            onUpdate(localOrder);
+        }
+    };
+    
+    const handleProgressChange = (value: number) => {
+        setLocalOrder(o => o ? { ...o, progress: value } : null);
+    }
+    
+    const incrementProgress = (amount: number) => {
+        setLocalOrder(o => {
+            if (!o) return null;
+            const newProgress = Math.max(0, Math.min(100, o.progress + amount));
+            return { ...o, progress: newProgress };
+        });
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Manage Order: {localOrder.id}</DialogTitle>
+                    <DialogDescription>Update the progress and status of this order.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-6 pt-4">
+                    <div>
+                        <Label htmlFor="progress" className="mb-2 block">Progress: {localOrder.progress}%</Label>
+                        <Slider 
+                            id="progress" 
+                            value={[localOrder.progress]} 
+                            onValueChange={([val]) => handleProgressChange(val)} 
+                            max={100} 
+                            step={1} 
+                        />
+                         <div className="flex justify-between items-center mt-2">
+                            <Button variant="outline" size="sm" onClick={() => incrementProgress(-10)}>
+                                <Minus className="h-4 w-4 mr-1" />
+                                10%
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => incrementProgress(10)}>
+                                <Plus className="h-4 w-4 mr-1" />
+                                10%
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="status">Status</Label>
+                        <Select value={localOrder.status} onValueChange={(value: OrderStatus) => setLocalOrder(o => o ? { ...o, status: value } : null)}>
+                            <SelectTrigger id="status">
+                                <SelectValue placeholder="Select a status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.keys(statusStyles).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {localOrder.type === 'Partial' && (
+                        <div>
+                            <Label htmlFor="remaining">Remaining Payment (PKR)</Label>
+                            <Input
+                                id="remaining"
+                                type="number"
+                                value={localOrder.remaining || ''}
+                                onChange={e => setLocalOrder(o => o ? { ...o, remaining: e.target.value } : null)}
+                                placeholder="e.g., 5000.00"
+                            />
+                        </div>
+                    )}
+                    <Button onClick={handleUpdate}>Update Order</Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
   
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -222,42 +309,49 @@ export default function OrdersPage() {
     }
   }, [orders]);
 
-  const [newOrderPlatform, setNewOrderPlatform] = useState('instagram');
-  const [newOrderAccount, setNewOrderAccount] = useState('');
-  const [newOrderPrice, setNewOrderPrice] = useState('');
-  const [newOrderType, setNewOrderType] = useState<'Instant' | 'Partial'>('Instant');
+  const [newOrder, setNewOrder] = useState({
+    platform: 'instagram',
+    account: '',
+    price: '',
+    type: 'Instant' as 'Instant' | 'Partial'
+  });
+
+  const handleNewOrderChange = (field: keyof typeof newOrder, value: string) => {
+    setNewOrder(prev => ({...prev, [field]: value}));
+  }
 
   const handleCreateOrder = () => {
-    if (!newOrderAccount || !newOrderPrice) return;
+    if (!newOrder.account || !newOrder.price) return;
     const newId = `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const newDate = new Date().toISOString();
     const createdOrder: Order = {
-      platform: newOrderPlatform,
-      account: newOrderAccount,
-      price: parseFloat(newOrderPrice).toFixed(2),
-      type: newOrderType,
+      platform: newOrder.platform,
+      account: newOrder.account,
+      price: parseFloat(newOrder.price).toFixed(2),
+      type: newOrder.type,
       id: newId,
       date: newDate,
       status: 'Pending',
       progress: 0,
-      ...(newOrderType === 'Partial' && { remaining: parseFloat(newOrderPrice).toFixed(2) })
+      ...(newOrder.type === 'Partial' && { remaining: parseFloat(newOrder.price).toFixed(2) })
     };
     setOrders(prev => [createdOrder, ...prev]);
     setCreateDialogOpen(false);
-    setNewOrderPlatform('instagram');
-    setNewOrderAccount('');
-    setNewOrderPrice('');
-    setNewOrderType('Instant');
+    setNewOrder({
+      platform: 'instagram',
+      account: '',
+      price: '',
+      type: 'Instant'
+    });
   };
   
   const handleOpenEditDialog = (order: Order) => {
-    setEditingOrder({ ...order });
+    setEditingOrder(order);
     setEditDialogOpen(true);
   };
 
-  const handleUpdateOrder = () => {
-    if (!editingOrder) return;
-    setOrders(prev => prev.map(o => o.id === editingOrder.id ? editingOrder : o));
+  const handleUpdateOrder = (updatedOrder: Order) => {
+    setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
     setEditDialogOpen(false);
     setEditingOrder(null);
   }
@@ -298,7 +392,7 @@ export default function OrdersPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="platform" className="text-right">Platform</Label>
-                            <Select value={newOrderPlatform} onValueChange={(value) => setNewOrderPlatform(value)}>
+                            <Select value={newOrder.platform} onValueChange={(value) => handleNewOrderChange('platform', value)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Select a platform" />
                                 </SelectTrigger>
@@ -309,15 +403,15 @@ export default function OrdersPage() {
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="account" className="text-right">Username</Label>
-                            <Input id="account" value={newOrderAccount} onChange={e => setNewOrderAccount(e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
+                            <Input id="account" value={newOrder.account} onChange={e => handleNewOrderChange('account', e.target.value)} className="col-span-3" placeholder="e.g., @username"/>
                         </div>
                          <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="price" className="text-right">Price (PKR)</Label>
-                            <Input id="price" type="number" value={newOrderPrice} onChange={e => setNewOrderPrice(e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
+                            <Input id="price" type="number" value={newOrder.price} onChange={e => handleNewOrderChange('price', e.target.value)} className="col-span-3" placeholder="e.g., 50000"/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="type" className="text-right">Type</Label>
-                             <Select value={newOrderType} onValueChange={(value: 'Instant' | 'Partial') => setNewOrderType(value)}>
+                             <Select value={newOrder.type} onValueChange={(value: 'Instant' | 'Partial') => handleNewOrderChange('type', value)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Select order type" />
                                 </SelectTrigger>
@@ -367,54 +461,12 @@ export default function OrdersPage() {
       </div>
 
       
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => {
-            if (!isOpen) {
-                setEditingOrder(null);
-            }
-            setEditDialogOpen(isOpen);
-        }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manage Order: {editingOrder?.id}</DialogTitle>
-            <DialogDescription>Update the progress and status of this order.</DialogDescription>
-          </DialogHeader>
-          {editingOrder && (
-            <div className="grid gap-6 pt-4">
-              <div>
-                <Label htmlFor="progress">Progress: {editingOrder.progress}%</Label>
-                <Slider id="progress" value={[editingOrder.progress]} onValueChange={([val]) => setEditingOrder(o => o ? {...o, progress: val} : null)} max={100} step={1} />
-              </div>
-
-              <div>
-                <Label htmlFor="status">Status</Label>
-                 <Select value={editingOrder.status} onValueChange={(value: OrderStatus) => setEditingOrder(o => o ? {...o, status: value} : null)}>
-                    <SelectTrigger id="status">
-                        <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                       {Object.keys(statusStyles).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-              </div>
-              
-              {editingOrder.type === 'Partial' && (
-                <div>
-                  <Label htmlFor="remaining">Remaining Payment (PKR)</Label>
-                  <Input 
-                    id="remaining" 
-                    type="number" 
-                    value={editingOrder.remaining || ''} 
-                    onChange={e => setEditingOrder(o => o ? { ...o, remaining: e.target.value } : null)}
-                    placeholder="e.g., 5000.00"
-                  />
-                </div>
-              )}
-               <Button onClick={handleUpdateOrder}>Update Order</Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <EditOrderDialog 
+        order={editingOrder} 
+        isOpen={isEditDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={handleUpdateOrder}
+      />
     </div>
   );
 
@@ -427,6 +479,7 @@ export default function OrdersPage() {
     
 
     
+
 
 
 

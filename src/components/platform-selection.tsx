@@ -13,6 +13,7 @@ const platforms = [
   { name: 'X', slug: 'x', logo: '/x.png', description: "Access X compromise services." },
   { name: 'Snapchat', slug: 'snapchat', logo: '/snapchat.png', description: "Access Snapchat account information." },
   { name: 'PUBG', slug: 'pubg', logo: '/pubg.png', description: "Access PUBG account information." },
+  { name: 'PUBG UC', slug: 'pubg-uc', logo: '/uc.png', description: "Top-up PUBG UC." },
 ];
 
 export default function PlatformSelection() {

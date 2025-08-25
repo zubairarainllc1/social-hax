@@ -377,8 +377,11 @@ export default function ProfilePage() {
 
   const renderPubgProfile = () => (
     <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">
-        <CardHeader>
-            <CardTitle className="font-headline text-3xl text-primary text-center">Hack PUBG Account</CardTitle>
+        <CardHeader className="items-center text-center">
+            <div className="relative h-20 w-20 mb-2">
+                <Image src="/pubg.png" alt="PUBG Logo" layout="fill" objectFit="contain" />
+            </div>
+            <CardTitle className="font-headline text-3xl text-primary">Hack PUBG Account</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center gap-6">
             {avatarUrl && (

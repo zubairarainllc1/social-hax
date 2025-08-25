@@ -33,6 +33,7 @@ const platformLogos: { [key: string]: string } = {
   x: '/x.png',
   whatsapp: '/whatsapp.png',
   snapchat: '/snapchat.png',
+  pubg: '/pubg.png',
 };
 
 const platformServices: { [key: string]: string } = {
@@ -43,6 +44,7 @@ const platformServices: { [key: string]: string } = {
   x: 'X Account Access',
   youtube: 'YouTube Account Access',
   tiktok: 'TikTok Account Access',
+  pubg: 'PUBG Account Access',
 };
 
 type OrderStatus = 'Completed' | 'Pending' | 'Partial' | 'Frozen' | 'Canceled';
@@ -334,7 +336,7 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
     const handleCreate = () => {
         if (!account || !price) return;
 
-        const finalAccount = platform !== 'whatsapp' && !account.startsWith('@') ? `@${account}` : account;
+        const finalAccount = (platform !== 'whatsapp' && platform !== 'pubg' && !account.startsWith('@')) ? `@${account}` : account;
         
         onCreate({
             platform,
@@ -377,14 +379,14 @@ const CreateOrderDialog = ({ isOpen, onOpenChange, onCreate }: { isOpen: boolean
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="account" className="text-right">Username</Label>
                         <div className="col-span-3 relative flex items-center">
-                            {platform !== 'whatsapp' && (
+                            {(platform !== 'whatsapp' && platform !== 'pubg') && (
                                 <span className="absolute left-3 text-muted-foreground">@</span>
                             )}
                              <Input 
                                 id="account" 
                                 value={account} 
                                 onChange={e => handleFieldChange('account', e.target.value)} 
-                                className={cn(platform !== 'whatsapp' && "pl-8")} 
+                                className={cn((platform !== 'whatsapp' && platform !== 'pubg') && "pl-8")} 
                                 placeholder={platform === 'whatsapp' ? "e.g., 123-456-7890" : "username"}
                             />
                         </div>

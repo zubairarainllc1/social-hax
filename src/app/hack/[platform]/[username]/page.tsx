@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound, Video, Heart, MessageSquare } from 'lucide-react';
+import { Users, UserPlus, CreditCard, Info, AlertTriangle, FileText, DollarSign, Edit, ShieldCheck, Server, KeyRound, Video, Heart, MessageSquare, Scan, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from '@/components/ui/label';
 
@@ -106,6 +106,12 @@ const platforms: PlatformConfig[] = [
         slug: 'snapchat', 
         logo: '/snapchat.png',
         features: { profilePicture: false, stats: false },
+     },
+     { 
+        name: 'PUBG', 
+        slug: 'pubg', 
+        logo: '/pubg.png',
+        features: { profilePicture: true, stats: false },
      },
 ];
 
@@ -206,6 +212,7 @@ export default function ProfilePage() {
   const [following, setFollowing] = useState<string | null>(null);
   const [posts, setPosts] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('https://placehold.co/128x128.png');
+  const [characterId, setCharacterId] = useState<string | null>(null);
 
   const [instantAmount, setInstantAmount] = useState('50000.00');
   const [partialAmount, setPartialAmount] = useState('15000.00');
@@ -228,6 +235,7 @@ export default function ProfilePage() {
     const followersParam = searchParams.get('followers');
     const followingParam = searchParams.get('following');
     const postsParam = searchParams.get('posts');
+    const characterIdParam = searchParams.get('characterId');
     
     // This code runs only on the client, so sessionStorage is available.
     const profileUrlFromStorage = sessionStorage.getItem(PROFILE_PIC_STORAGE_KEY);
@@ -235,6 +243,7 @@ export default function ProfilePage() {
     setFollowers(followersParam ? formatNumber(followersParam) : null);
     setFollowing(followingParam ? formatNumber(followingParam) : null);
     setPosts(postsParam ? formatNumber(postsParam) : null);
+    setCharacterId(characterIdParam);
 
     if (currentPlatform.features.profilePicture && profileUrlFromStorage) {
         setAvatarUrl(profileUrlFromStorage);
@@ -296,70 +305,132 @@ export default function ProfilePage() {
     );
   };
 
-  const displayName = platformSlug === 'whatsapp' ? username : `@${username}`;
+  const displayName = platformSlug === 'whatsapp' || platformSlug === 'pubg' ? username : `@${username}`;
+
+  const renderDefaultProfile = () => (
+    <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">
+      <CardHeader className="text-center">
+          <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="relative h-12 w-12">
+                  <Image src={currentPlatform.logo} alt={`${platformName} logo`} layout="fill" objectFit="contain" />
+              </div>
+              <CardTitle className="font-headline text-3xl text-primary">Hacking {platformName}</CardTitle>
+          </div>
+        {currentPlatform.features.profilePicture && avatarUrl && (
+          <div className="mx-auto mb-4 relative group w-32 h-32">
+              <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleAvatarChange} 
+                  className="hidden" 
+                  accept="image/*"
+              />
+              <Image
+                  src={avatarUrl}
+                  alt="Profile Picture"
+                  width={128}
+                  height={128}
+                  className="rounded-full border border-black/10 shadow-lg w-full h-full object-cover"
+                  data-ai-hint="profile avatar"
+                  onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
+              />
+               <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  aria-label="Change profile picture"
+              >
+                  <Edit className="h-8 w-8" />
+              </button>
+          </div>
+        )}
+        <CardTitle className="font-headline text-3xl text-black">{displayName}</CardTitle>
+        <CardDescription>Account located. Ready to proceed.</CardDescription>
+        {currentPlatform.features.stats && currentPlatform.stats && (
+          <div className="flex justify-center gap-8 pt-4 text-foreground">
+              <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
+              <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
+              <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
+          </div>
+        )}
+        <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
+          <div className="text-center">
+              <p className="text-lg font-bold text-green-500">Active</p>
+              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
+          </div>
+          <div className="text-center">
+              <p className="text-lg font-bold">Active</p>
+              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
+          </div>
+          <div className="text-center">
+              <p className="text-lg font-bold">Granted</p>
+              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+
+  const renderPubgProfile = () => (
+    <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">
+        <CardHeader>
+            <CardTitle className="font-headline text-3xl text-primary text-center">Hack PUBG Account</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-6">
+            {avatarUrl && (
+              <div className="relative group w-32 h-32 flex-shrink-0">
+                  <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleAvatarChange} 
+                      className="hidden" 
+                      accept="image/*"
+                  />
+                  <Image
+                      src={avatarUrl}
+                      alt="Profile Picture"
+                      width={128}
+                      height={128}
+                      className="rounded-md border border-black/10 shadow-lg w-full h-full object-cover"
+                      data-ai-hint="game avatar"
+                      onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
+                  />
+                   <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute inset-0 bg-black/50 rounded-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      aria-label="Change profile picture"
+                  >
+                      <Edit className="h-8 w-8" />
+                  </button>
+              </div>
+            )}
+            <div className="space-y-2">
+                <h2 className="font-headline text-3xl text-black">{displayName}</h2>
+                {characterId && (
+                    <p className="text-sm text-muted-foreground">ID: {characterId}</p>
+                )}
+            </div>
+        </CardContent>
+         <CardFooter className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
+            <div className="text-center">
+                <p className="text-lg font-bold text-green-500">Active</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Account Status</p>
+            </div>
+            <div className="text-center">
+                <p className="text-lg font-bold text-green-500">100%</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Scan className="h-3 w-3"/> Scan Complete</p>
+            </div>
+            <div className="text-center">
+                <p className="text-lg font-bold text-green-500">Ready</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><CheckCircle className="h-3 w-3"/> Data Prepared</p>
+            </div>
+          </CardFooter>
+    </Card>
+  );
+
 
   return (
     <div className="flex flex-col items-center justify-start pt-10 gap-6">
-      <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">
-        <CardHeader className="text-center">
-            <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="relative h-12 w-12">
-                    <Image src={currentPlatform.logo} alt={`${platformName} logo`} layout="fill" objectFit="contain" />
-                </div>
-                <CardTitle className="font-headline text-3xl text-primary">Hacking {platformName}</CardTitle>
-            </div>
-          {currentPlatform.features.profilePicture && avatarUrl && (
-            <div className="mx-auto mb-4 relative group w-32 h-32">
-                <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleAvatarChange} 
-                    className="hidden" 
-                    accept="image/*"
-                />
-                <Image
-                    src={avatarUrl}
-                    alt="Profile Picture"
-                    width={128}
-                    height={128}
-                    className="rounded-full border border-black/10 shadow-lg w-full h-full object-cover"
-                    data-ai-hint="profile avatar"
-                    onError={() => setAvatarUrl('https://placehold.co/128x128.png')}
-                />
-                 <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                    aria-label="Change profile picture"
-                >
-                    <Edit className="h-8 w-8" />
-                </button>
-            </div>
-          )}
-          <CardTitle className="font-headline text-3xl text-black">{displayName}</CardTitle>
-          <CardDescription>Account located. Ready to proceed.</CardDescription>
-          {currentPlatform.features.stats && currentPlatform.stats && (
-            <div className="flex justify-center gap-8 pt-4 text-foreground">
-                <StatDisplay value={followers} label={currentPlatform.stats.followers.label} icon={currentPlatform.stats.followers.icon} />
-                <StatDisplay value={following} label={currentPlatform.stats.following.label} icon={currentPlatform.stats.following.icon} />
-                <StatDisplay value={posts} label={currentPlatform.stats.posts.label} icon={currentPlatform.stats.posts.icon} />
-            </div>
-          )}
-          <div className="flex justify-center gap-8 pt-6 text-foreground border-t border-border/50 mt-6">
-            <div className="text-center">
-                <p className="text-lg font-bold text-green-500">Active</p>
-                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><ShieldCheck className="h-3 w-3"/> Status</p>
-            </div>
-            <div className="text-center">
-                <p className="text-lg font-bold">Active</p>
-                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Server className="h-3 w-3"/> VPS</p>
-            </div>
-            <div className="text-center">
-                <p className="text-lg font-bold">Granted</p>
-                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><KeyRound className="h-3 w-3"/> Account Access</p>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      {platformSlug === 'pubg' ? renderPubgProfile() : renderDefaultProfile()}
 
       <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-background/50 flex flex-col bg-card/70 border-border shadow-lg shadow-red-500/10">

@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useReducer } from 'react';
+import { useState, useReducer, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText, Video, Heart, MessageSquare } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Users, UserPlus, FileText, Video, Heart, MessageSquare, Gamepad2 } from "lucide-react";
 import Image from 'next/image';
 
 const PROFILE_PIC_STORAGE_KEY = 'prank_profile_pic';
@@ -24,6 +24,7 @@ type PlatformConfig = {
     features: {
         profilePicture: boolean;
         stats: boolean;
+        characterId?: boolean;
     };
     stats?: {
         followers: { label: string; icon: React.ElementType; placeholder: string };
@@ -112,6 +113,13 @@ const platforms: PlatformConfig[] = [
         mainInput: { label: 'Username (Required)', placeholder: '@username', type: 'text'},
         features: { profilePicture: false, stats: false },
      },
+     { 
+        name: 'PUBG', 
+        slug: 'pubg', 
+        logo: '/pubg.png',
+        mainInput: { label: 'Username (Required)', placeholder: 'e.g., ProGamer123', type: 'text'},
+        features: { profilePicture: true, stats: false, characterId: true },
+     },
 ];
 
 const defaultPlatform: PlatformConfig = {
@@ -167,9 +175,10 @@ export default function HackPage() {
       followers: '',
       following: '',
       posts: '',
+      characterId: '',
   });
 
-  const { username, profileUrl, followers, following, posts } = formState;
+  const { username, profileUrl, followers, following, posts, characterId } = formState;
 
   const currentPlatform = platforms.find(p => p.slug === platform) || defaultPlatform;
   const platformName = currentPlatform.name;
@@ -206,6 +215,7 @@ export default function HackPage() {
       if (followers && followers.trim()) queryParams.followers = followers.trim();
       if (following && following.trim()) queryParams.following = following.trim();
       if (posts && posts.trim()) queryParams.posts = posts.trim();
+      if (characterId && characterId.trim()) queryParams.characterId = characterId.trim();
 
       const query = new URLSearchParams(queryParams).toString();
       
@@ -241,6 +251,20 @@ export default function HackPage() {
               />
             </div>
             
+            {currentPlatform.features.characterId && (
+              <div className="space-y-2">
+                  <Label htmlFor="characterId" className="flex items-center gap-2"><Gamepad2 className="h-4 w-4 text-muted-foreground"/> Character ID</Label>
+                  <Input 
+                      id="characterId" 
+                      type="text" 
+                      placeholder="e.g., 5123456789" 
+                      value={characterId} 
+                      onChange={(e) => handleFieldChange('characterId', e.target.value)} 
+                      className="bg-input"
+                  />
+              </div>
+            )}
+
             {currentPlatform.features.profilePicture && (
                 <div className="space-y-2">
                     <Label htmlFor="profileUrl" className="flex items-center gap-2"><ImageIcon className="h-4 w-4 text-muted-foreground"/> Profile Picture</Label>

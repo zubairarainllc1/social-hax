@@ -12,6 +12,7 @@ const platforms = [
   { name: 'YouTube', slug: 'youtube', logo: '/youtube.png', description: "Unlock YouTube channel control." },
   { name: 'X', slug: 'x', logo: '/x.png', description: "Access X compromise services." },
   { name: 'Snapchat', slug: 'snapchat', logo: '/snapchat.png', description: "Access Snapchat account information." },
+  { name: 'PUBG', slug: 'pubg', logo: '/pubg.png', description: "Access PUBG account information." },
 ];
 
 export default function PlatformSelection() {

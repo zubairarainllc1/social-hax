@@ -219,7 +219,7 @@ export default function HackPage() {
 
       const query = new URLSearchParams(queryParams).toString();
       
-      const targetIdentifier = username.trim().replace(/^@/, '');
+      const targetIdentifier = encodeURIComponent(username.trim());
       router.push(`/hack/${platform}/${targetIdentifier}?${query}`);
     }
   };

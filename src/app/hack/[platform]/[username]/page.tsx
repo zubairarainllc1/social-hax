@@ -204,7 +204,7 @@ const PriceEditDialog = ({
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const username = params.username as string;
+  const usernameParam = params.username as string;
   const platformSlug = params.platform as string;
   const searchParams = useSearchParams();
   
@@ -220,6 +220,8 @@ export default function ProfilePage() {
   const [priceDialogInfo, setPriceDialogInfo] = useState<PriceDialogInfo | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [username, setUsername] = useState('');
   
   const currentPlatform = platforms.find(p => p.slug === platformSlug) || defaultPlatform;
   const platformName = currentPlatform.name;
@@ -231,6 +233,9 @@ export default function ProfilePage() {
         const num = parseInt(numStr, 10);
         return isNaN(num) ? null : num.toLocaleString();
     };
+
+    const decodedUsername = decodeURIComponent(usernameParam);
+    setUsername(decodedUsername);
 
     const followersParam = searchParams.get('followers');
     const followingParam = searchParams.get('following');
@@ -254,12 +259,12 @@ export default function ProfilePage() {
             console.error("Could not remove from session storage", error);
         }
     } else if (currentPlatform.features.profilePicture) {
-        setAvatarUrl(`https://i.pravatar.cc/128?u=${username}`);
+        setAvatarUrl(`https://i.pravatar.cc/128?u=${decodedUsername}`);
     } else {
         setAvatarUrl('');
     }
 
-  }, [username, searchParams, currentPlatform.features.profilePicture]);
+  }, [usernameParam, searchParams, currentPlatform.features.profilePicture]);
 
 
   const openPriceDialog = (type: 'instant' | 'partial') => {
@@ -305,7 +310,7 @@ export default function ProfilePage() {
     );
   };
 
-  const displayName = platformSlug === 'whatsapp' || platformSlug === 'pubg' ? username : `@${username}`;
+  const displayName = platformSlug === 'whatsapp' || platformSlug === 'pubg' ? username : username.startsWith('@') ? username : `@${username}`;
 
   const renderDefaultProfile = () => (
     <Card className="w-full max-w-3xl bg-card/70 border-border shadow-lg">

@@ -380,7 +380,7 @@ export default function ProfilePage() {
         <CardHeader>
             <CardTitle className="font-headline text-3xl text-primary text-center">Hack PUBG Account</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center gap-6">
+        <CardContent className="flex items-center justify-center gap-6">
             {avatarUrl && (
               <div className="relative group w-32 h-32 flex-shrink-0">
                   <input 
@@ -517,3 +517,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

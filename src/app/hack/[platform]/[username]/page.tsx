@@ -425,8 +425,8 @@ export default function ProfilePage() {
                 <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><Scan className="h-3 w-3"/> Scan Complete</p>
             </div>
             <div className="text-center">
-                <p className="text-lg font-bold text-green-500">Ready</p>
-                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><CheckCircle className="h-3 w-3"/> Data Prepared</p>
+                <p className="text-lg font-bold text-red-500">Weak</p>
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1"><CheckCircle className="h-3 w-3"/> Security</p>
             </div>
           </CardFooter>
     </Card>
@@ -517,5 +517,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
